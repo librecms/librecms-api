@@ -1,0 +1,19 @@
+{
+  "name": "librecms-api",
+  "version": "0.0.1",
+  "description": "HTTP API for LibreCMS project",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/librecms/librecms-api.git"
+  },
+  "license": "https://raw.github.com/librecms/librecms-api/master/LICENSE",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node api.js"
+  },
+  "dependencies": {
+    "baucis": "~0.5.7",
+    "express": "~3.3.4",
+    "mongoose": "~3.6.14"
+  }
+}
