@@ -1,12 +1,34 @@
 var baucis = require('baucis');
-var dive = require('diveSync');
 var mongoose = require('mongoose');
 
-dive(process.cwd() + '/schemata', function(err, file) {
-  var schema = require(file);
-  if (schema && schema.label) {
-    var model = new mongoose.Schema(schema.schema);
-    mongoose.model(schema.label, model);
-    baucis.rest(schema.label);
+var User = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true
   }
 });
+mongoose.model('User', User);
+baucis.rest('User');
+
+var Course = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true
+  }
+});
+mongoose.model('Course', Course);
+baucis.rest('Course');
+
+var Section = new mongoose.Schema({
+  courseId: {
+    type: String,
+    required: true
+  },
+  studentIds: {
+    type: [String],
+    required: true,
+    default: []
+  }
+});
+mongoose.model('Section', Section);
+baucis.rest('Section');
