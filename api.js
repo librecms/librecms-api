@@ -7,7 +7,6 @@ mongoose.connect(process.env.LIBRECMS_MONGO_URI);
 var schemata = require('./schemata');
 var app = express();
 var routes = require('./routes');
-routes(app);
 app.use(baucis());
 
 var port = process.env.LIBRECMS_API_PORT || process.env.PORT || 3030
