@@ -1,4 +1,12 @@
 var baucis = require('baucis');
-exports.user = require('./user'); 
+var dive = require('diveSync');
+var mongoose = require('mongoose');
 
-baucis.rest('User');
+dive(process.cwd() + '/schemata', function(err, file) {
+  var schema = require(file);
+  if (schema && schema.label) {
+    var model = new mongoose.Schema(schema.schema);
+    mongoose.model(schema.label, model);
+    baucis.rest(schema.label);
+  }
+});
