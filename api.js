@@ -10,4 +10,6 @@ var routes = require('./routes');
 routes(app);
 app.use(baucis());
 
-app.listen(3000);
+var port = process.env.LIBRECMS_API_PORT || process.env.PORT || 3030
+app.listen(port);
+console.log('API started on port ' + port);

@@ -8,14 +8,16 @@ module.exports = function(grunt) {
       dev: {
         options: {
           env: {
-            'LIBRECMS_MONGO_URI': 'mongodb://localhost/librecms'
+            'LIBRECMS_MONGO_URI': 'mongodb://localhost/librecms',
+            'LIBRECMS_API_PORT': '3030'
           }
         }
       },
       prod: {
         options: {
           env: {
-            'LIBRECMS_MONGO_URI': process.env.LIBRECMS_MONGO_URI || 'mongodb://localhost/librecms'
+            'LIBRECMS_MONGO_URI': process.env.LIBRECMS_MONGO_URI || 'mongodb://localhost/librecms',
+            'LIBRECMS_API_PORT': '3030'
           }
         }
       }
