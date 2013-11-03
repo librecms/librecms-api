@@ -105,7 +105,6 @@ var CourseCtrl = {
       var options = { "new": true };
       Course.findOneAndUpdate(req.param.courseId, update, options)
         .exec(function(err, course) {
-          console.log(JSON.stringify(course));
           if (err) return next(err);
           if (!course) return next(null, false);
           return res.json(201, newPost);
