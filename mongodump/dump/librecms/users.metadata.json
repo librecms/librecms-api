@@ -1,0 +1,1 @@
+{ "indexes" : [ { "v" : 1, "key" : { "_id" : 1 }, "ns" : "librecms.users", "name" : "_id_" }, { "v" : 1, "key" : { "name.user" : 1 }, "ns" : "librecms.users", "name" : "name.user_1", "background" : true, "safe" : null } ] }
