@@ -75,6 +75,7 @@ var CourseCtrl = {
 
     // Get events by course ID
     // @TODO pagination
+    // @TODO query by dates
     app.get('/courses/:courseId/events', function(req, res, next) {
       var filter = { posts: true };
       var query = { _id: req.params.courseId };
