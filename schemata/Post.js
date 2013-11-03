@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 
 var Post = new mongoose.Schema({
   date: {
-    type: Date,
+    type: Number,
     required: true
   },
   text: {
@@ -11,10 +11,6 @@ var Post = new mongoose.Schema({
   },
   generated: {
     type: Boolean,
-    required: true
-  },
-  courseId: {
-    type: String,
     required: true
   }
 });

@@ -5,6 +5,17 @@ var Post = mongoose.model('Post');
 
 var CourseCtrl = {
   init: function(app) {
+    // ******** Course **********
+    // Create new course
+    app.post('/courses', function(req, res, next) {
+      var newCourse = new Course({ name: req.body.name });
+      newCourse.save(function(err) {
+          if(err) throw err;
+          return res.json(newCourse);
+        });
+    });
+
+    // Get course by id
     app.get('/courses/:courseId', function(req, res, next) {
       Course.findOne(req.params.courseId)
         .exec(function(err, course) {
@@ -14,102 +25,67 @@ var CourseCtrl = {
         });
     });
 
-    // ******** Course Events **********
-    // GET events list. Does not yet limit or filter
-    // @TODO pagination 
-    // see https://github.com/librecms/librecms-api/issues/2
-    app.get('/courses/:courseId/events', function(req, res, next) {
-      Course.findOne(req.params.courseId)
-        .exec(function(err, course) {
-          if (err) return next(err);
-          if (!course) return next(null, false);
-          return res.json(200, course.events || []);
-        });
-    });
-
-    // Create new calendar event for course
-    // requires fields: text
-    // optional fields: generated (default to false)
-    // responds with new post
-    app.post('/courses/:courseId/events', function(req, res, next) {
-      var query = req.param.courseId;
-      var newEvent = new Event({
-        title: req.body.title,
-        description: req.body.description,
-        start: req.body.start,
-        end: req.body.end
-      });
-      var update = {
-        $push: { 
-          "events": newEvent
-        }
-      };
-
-      Course.findOneAndUpdate(req.param.courseId)
-        .exec(function(err, course) {
-          if (err) return next(err);
-          return res.json(201, newEvent);
-        });
-    });
-
-    // ******** Course Posts **********
-    // GET posts list.
-    // @TODO pagination 
-    // see https://github.com/librecms/librecms-api/issues/2
-    app.get('/courses/:courseId/posts', function(req, res, next) {
-      var endDate = req.params.endDate || new Date();
-      var pipeline = [
-        {
-          $match: { 
-            "_id": mongoose.Types.ObjectId(req.params.courseId),
-            "posts.date": { $lte: endDate }
-          }
-        },
-        { $unwind: "$posts" },
-        {
-          $group: {
-            _id: "$_id",
-            posts: { $addToSet: "$posts" }
-          }
-        },
-        { 
-          $sort: { date: -1 } 
-        },
-        {
-          $limit: 20
-        }
-      ];
-      Course.aggregate(pipeline, function(err, result) {
-        if (err) return next(err);
-        if (!result) return next(null, false);
-        return res.json(200, result[0].posts || []);
-      });
-    });
-
-    // Create new timeline post for course
-    // requires fields: text
-    // optional fields: generated (default to false)
-    // responds with new post
+    // ******** Course Timeline Posts **********
+    // Create new post
     app.post('/courses/:courseId/posts', function(req, res, next) {
-      var query = req.param.courseId;
       var newPost = new Post({
-        text: req.body.text,
-        date: new Date(),
-        generated: req.body.generated || false
+        date: (new Date()).getTime(),
+        text: req.body.text 
       });
-      var update = {
-        $push: { 
-          "posts": newPost
-        }
-      };
+      var update = { $push: { posts: newPost } };
       var options = { "new": true };
-      Course.findOneAndUpdate(req.param.courseId, update, options)
+      Course.findOneAndUpdate(req.params.courseId, update, options)
         .exec(function(err, course) {
-          if (err) return next(err);
-          if (!course) return next(null, false);
-          return res.json(201, newPost);
+          if (err) throw err;
+          return res.json(course);
         });
     });
+
+    // Get posts by course ID
+    // @TODO pagination
+    app.get('/courses/:courseId/posts', function(req, res, next) {
+      var filter = { posts: true };
+      var startDate = req.body.startDate || (new Date()).getTime();
+      var query = { _id: req.params.courseId };
+      Course.findOne(query)
+        .exec(function(err, course) {
+          if (err) throw err;
+          if (!course) return res.end(404);
+          return res.json(course.posts || []);
+        });
+    });
+
+    // ******** Course Events **********
+    // Create new event
+    app.post('/courses/:courseId/events', function(req, res, next) {
+      var newEvent = new Event({
+        startDate: req.body.startDate,
+        endDate: req.body.endDate,
+        description: req.body.description,
+        title: req.body.title 
+      });
+      var update = { $push: { events: newEvent } };
+      var options = { "new": true };
+      Course.findOneAndUpdate(req.params.courseId, update, options)
+        .exec(function(err, course) {
+          if (err) throw err;
+          return res.json(course);
+        });
+    });
+
+    // Get events by course ID
+    // @TODO pagination
+    app.get('/courses/:courseId/events', function(req, res, next) {
+      var filter = { posts: true };
+      var query = { _id: req.params.courseId };
+      Course.findOne(query)
+        .exec(function(err, course) {
+          if (err) throw err;
+          if (!course) return res.end(404);
+          return res.json(course.events || []);
+        });
+    });
+
   }
 };
 

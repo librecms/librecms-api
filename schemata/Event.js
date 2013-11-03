@@ -9,12 +9,12 @@ var Event = new mongoose.Schema({
     type: String,
     required: true
   },
-  start: {
-    type: Date,
+  startDate: {
+    type: Number,
     required: true
   },
-  end: {
-    type: Date,
+  endDate: {
+    type: Number,
     required: true
   }
 });
