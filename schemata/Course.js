@@ -13,14 +13,16 @@ var Course = new mongoose.Schema({
   },
   students: {
     type: [{
-      user: {
-        type: mongoose.Schema.ObjectId,
-        ref: 'User',
+      userId: {
+        type: String,
         required: true
       },
       assignments: [AssignmentSubmission],
       assessments: [AssessmentSubmission]
     }]
+  },
+  posts: {
+    type: [Post]
   },
   events: {
     type: [Event]
