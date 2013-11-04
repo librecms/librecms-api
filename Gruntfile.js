@@ -2,8 +2,6 @@
 
 module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-nodemon');
-  console.log(JSON.stringify(process.env));
-
   grunt.initConfig({
     nodemon: {
       dev: {
