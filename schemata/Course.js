@@ -17,9 +17,22 @@ var Course = new mongoose.Schema({
         type: String,
         required: true
       },
-      assignments: [AssignmentSubmission],
-      assessments: [AssessmentSubmission]
-    }]
+      assignments: {
+        type: [AssignmentSubmission],
+        default: [],
+        unique: false,
+        indexed: false
+      },
+      assessments: {
+        type: [AssessmentSubmission],
+        default: [],
+        unique: false,
+        indexed: false
+      }
+    }],
+    default: [],
+    unique: false,
+    indexed: false
   },
   posts: {
     type: [Post]

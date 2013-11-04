@@ -2,26 +2,58 @@ var mongoose = require('mongoose');
 var Course = mongoose.model('Course');
 var Event = mongoose.model('Event');
 var Post = mongoose.model('Post');
+var User = mongoose.model('User');
 
 var CourseCtrl = {
   init: function(app) {
     // ******** Course **********
+    // GET list of courses
+    app.get('/courses', function(req, res, next) {
+      var filter = {};
+      Course.find({}, filter)
+        .exec(function(err, courses) {
+          if (err) return next(err);
+          return res.json(courses);
+      });
+    });
+
     // Create new course
     app.post('/courses', function(req, res, next) {
-      var newCourse = new Course({ name: req.body.name });
+      var newCourse = new Course({ 
+        name: req.body.name 
+      });
       newCourse.save(function(err) {
-          if(err) throw err;
-          return res.json(newCourse);
-        });
+        if (err) return next(err);
+        return res.json(201, newCourse);
+      });
     });
 
     // Get course by id
     app.get('/courses/:courseId', function(req, res, next) {
       Course.findOne(req.params.courseId)
         .exec(function(err, course) {
-          if (err) next(err);
+          if (err) return next(err);
           if (!course) return res.end(404);
           return res.json(course);
+        });
+    });
+
+    // Register a User to a Course (add user to 'students' set)
+    app.post('/courses/:courseId/register', function(req, res, next) {
+      console.log('courseId = ' + req.params.courseId);
+      var student = {
+        userId: req.body.studentId
+      };
+      var update = { $addToSet: { students: student } };
+      var query = { _id: req.params.courseId };
+      Course.findOneAndUpdate(query, update)
+        .exec(function(err, course) {
+          console.log(JSON.stringify(student));
+          console.log(JSON.stringify(course));
+          if (err) return next(err);
+          if (!course) return next(null, false);
+          res.status(200);
+          return res.end();
         });
     });
 
@@ -37,7 +69,7 @@ var CourseCtrl = {
       Course.findOneAndUpdate(req.params.courseId, update, options)
         .exec(function(err, course) {
           if (err) throw err;
-          return res.json(course);
+          return res.json(201, newPost);
         });
     });
 
@@ -47,7 +79,7 @@ var CourseCtrl = {
       var filter = { posts: true };
       var startDate = req.body.startDate || (new Date()).getTime();
       var query = { _id: req.params.courseId };
-      Course.findOne(query)
+      Course.findOne(query, filter)
         .exec(function(err, course) {
           if (err) throw err;
           if (!course) return res.end(404);
@@ -69,7 +101,7 @@ var CourseCtrl = {
       Course.findOneAndUpdate(req.params.courseId, update, options)
         .exec(function(err, course) {
           if (err) throw err;
-          return res.json(course);
+          return res.json(201, newEvent);
         });
     });
 
@@ -77,9 +109,9 @@ var CourseCtrl = {
     // @TODO pagination
     // @TODO query by dates
     app.get('/courses/:courseId/events', function(req, res, next) {
-      var filter = { posts: true };
+      var filter = { events: true };
       var query = { _id: req.params.courseId };
-      Course.findOne(query)
+      Course.findOne(query, filter)
         .exec(function(err, course) {
           if (err) throw err;
           if (!course) return res.end(404);

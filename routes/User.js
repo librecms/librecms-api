@@ -4,8 +4,20 @@ var Course = mongoose.model('Course');
 
 var UserCtrl = {
   init: function(app) {
+    app.post('/users', function(req, res, next) {
+    });
+    // GET list of users
+    // @TODO pagination
+    app.get('/users', function(req, res, next) {
+      var filter = { name: true };
+      User.find({}, filter, function(err, users) {
+        if (err) return next(err);
+        return res.json(users);
+      });
+    });
+
+    // GET user by ID
     app.get('/users/:userId', function(req, res, next) {
-      console.log('here' + req.params.userId);
       User.findById(req.params.userId)
         .exec(function(err, user) {
           if (err) return next(err);
@@ -14,13 +26,12 @@ var UserCtrl = {
         });
     });
 
+    // GET courses by userId
     app.get('/users/:userId/courses', function(req, res, next) {
       var query = { "students.userId": req.params.userId };
       var filter = { name: true };
       Course.find(query, filter)
-        .lean()
         .exec(function(err, courses) {
-          console.log(JSON.stringify(courses));
           return res.json(courses);
         });
     });
