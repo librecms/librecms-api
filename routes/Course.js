@@ -30,7 +30,10 @@ var CourseCtrl = {
 
     // Get course by id
     app.get('/courses/:courseId', function(req, res, next) {
-      Course.findOne(req.params.courseId)
+      var query = {
+        _id: req.params.courseId
+      };
+      Course.findOne(query)
         .exec(function(err, course) {
           if (err) return next(err);
           if (!course) return res.end(404);
