@@ -5,7 +5,20 @@ var Course = mongoose.model('Course');
 var UserCtrl = {
   init: function(app) {
     app.post('/users', function(req, res, next) {
+      var newUser = new User({
+        name: {
+          first: req.body.firstName,
+          last: req.body.lastName,
+          user: req.body.userName
+        },
+        password: req.body.password
+      });
+      newUser.save(function(err) {
+        if (err) return next(err);
+        return res.json(201, newUser);
+      });
     });
+
     // GET list of users
     // @TODO pagination
     app.get('/users', function(req, res, next) {

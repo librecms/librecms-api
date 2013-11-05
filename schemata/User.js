@@ -26,13 +26,18 @@ User.pre('save', function(next) {
   var user = this;
   // Rehash password if it has been modified
   if (!user.isModified('password')) return next();
+
+  console.log('about to generate a random salt');
   
   // Generate a random salt
   bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
     if (err) return next(err);
+    console.log('just generated random salt ' + salt);
 
+    console.log('user is ' + JSON.stringify(user));
     // Hash password+salt
-    bcrypt.hash(user.password, salt, function(err, hash) {
+    bcrypt.hash(user.password, salt, null, function(err, hash) {
+      console.log('just generated hash ' + hash);
       if (err) return next(err);
       // Overwrite password with password+salt hash
       user.password = hash;
