@@ -43,7 +43,6 @@ var CourseCtrl = {
 
     // Register a User to a Course (add user to 'students' set)
     app.post('/courses/:courseId/register', function(req, res, next) {
-      console.log('courseId = ' + req.params.courseId);
       var student = {
         userId: req.body.studentId
       };
@@ -51,8 +50,6 @@ var CourseCtrl = {
       var query = { _id: req.params.courseId };
       Course.findOneAndUpdate(query, update)
         .exec(function(err, course) {
-          console.log(JSON.stringify(student));
-          console.log(JSON.stringify(course));
           if (err) return next(err);
           if (!course) return next(null, false);
           res.status(200);

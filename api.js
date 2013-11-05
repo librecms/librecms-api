@@ -10,6 +10,10 @@ app.configure(function () {
   app.use(express.methodOverride());
   app.use(app.router);
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+  app.use(function(req, res, next){
+    console.log('request %s %s', req.method, req.url);
+    next();
+  });
 });
 
 var routes = require('./routes');
