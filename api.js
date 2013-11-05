@@ -1,6 +1,5 @@
 var express = require('express');
 var mongoose = require('mongoose');
-var baucis = require('baucis');
 
 mongoose.connect(process.env.LIBRECMS_MONGO_URI);
 var schemata = require('./schemata');
