@@ -6,6 +6,10 @@ var Assignment = new mongoose.Schema({
   },
   description: {
     type: String
+  },
+  posted: {
+    type: Date,
+    required: true
   }
 });
 mongoose.model('Assignment', Assignment);

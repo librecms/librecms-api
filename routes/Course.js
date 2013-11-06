@@ -119,6 +119,61 @@ var CourseCtrl = {
         });
     });
 
+    // Get assignments by course ID
+    // @TODO pagination
+    app.get('/courses/:courseId/assignments', function(req, res, next) {
+      var filter = { assignment: true };
+      var startDate = req.body.startDate || (new Date()).getTime();
+      var query = { _id: req.params.courseId };
+      Course.findOne(query, filter)
+        .exec(function(err, course) {
+          if (err) throw err;
+          if (!course) return res.end(404);
+          return res.json(course.assignments || []);
+        });
+    });
+
+    // Get exams by course ID
+    // @TODO pagination
+    app.get('/courses/:courseId/exams', function(req, res, next) {
+      var filter = { exams: true };
+      var startDate = req.body.startDate || (new Date()).getTime();
+      var query = { _id: req.params.courseId };
+      Course.findOne(query, filter)
+        .exec(function(err, course) {
+          if (err) throw err;
+          if (!course) return res.end(404);
+          return res.json(course.exams || []);
+        });
+    });
+
+    // Get notes by course ID
+    // @TODO pagination
+    app.get('/courses/:courseId/notes', function(req, res, next) {
+      var filter = { notes: true };
+      var startDate = req.body.startDate || (new Date()).getTime();
+      var query = { _id: req.params.courseId };
+      Course.findOne(query, filter)
+        .exec(function(err, course) {
+          if (err) throw err;
+          if (!course) return res.end(404);
+          return res.json(course.notes || []);
+        });
+    });
+
+    // Get quizzes by course ID
+    // @TODO pagination
+    app.get('/courses/:courseId/quizzes', function(req, res, next) {
+      var filter = { quizzes: true };
+      var startDate = req.body.startDate || (new Date()).getTime();
+      var query = { _id: req.params.courseId };
+      Course.findOne(query, filter)
+        .exec(function(err, course) {
+          if (err) throw err;
+          if (!course) return res.end(404);
+          return res.json(course.quizzes || []);
+        });
+    });
   }
 };
 
