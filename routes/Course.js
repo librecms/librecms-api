@@ -64,9 +64,10 @@ var CourseCtrl = {
         date: (new Date()).getTime(),
         text: req.body.text 
       });
+      var query = { _id: req.params.courseId };
       var update = { $push: { posts: newPost } };
       var options = { "new": true };
-      Course.findOneAndUpdate(req.params.courseId, update, options)
+      Course.findOneAndUpdate(query, update, options)
         .exec(function(err, course) {
           if (err) throw err;
           return res.json(201, newPost);
@@ -98,7 +99,8 @@ var CourseCtrl = {
       });
       var update = { $push: { events: newEvent } };
       var options = { "new": true };
-      Course.findOneAndUpdate(req.params.courseId, update, options)
+      var query = { _id: req.params.courseId };
+      Course.findOneAndUpdate(query, update, options)
         .exec(function(err, course) {
           if (err) throw err;
           return res.json(201, newEvent);
