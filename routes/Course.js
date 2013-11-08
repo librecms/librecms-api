@@ -126,8 +126,7 @@ var CourseCtrl = {
     // Get assignments by course ID
     // @TODO pagination
     app.get('/courses/:courseId/assignments', function(req, res, next) {
-      var filter = { assignment: true };
-      var startDate = req.body.startDate || (new Date()).getTime();
+      var filter = { assignments: true };
       var query = { _id: req.params.courseId };
       Course.findOne(query, filter)
         .exec(function(err, course) {
