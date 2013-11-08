@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var Assignment = new mongoose.Schema({
   due: {
-    type: Date,
+    type: Number,
     required: true
   },
   description: {
