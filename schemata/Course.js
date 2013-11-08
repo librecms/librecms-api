@@ -1,9 +1,12 @@
 var mongoose = require('mongoose');
+
+var Assessment = require('./Assessment');
 var AssessmentSubmission = require('./AssessmentSubmission');
 var Assignment = require('./Assignment');
 var AssignmentSubmission = require('./AssignmentSubmission');
 var Content = require('./Content');
 var Event = require('./Event');
+var Note = require('./Note');
 var Post = require('./Post');
 
 var Course = new mongoose.Schema({
@@ -42,6 +45,15 @@ var Course = new mongoose.Schema({
   },
   assignments: {
     type: [Assignment]
+  },
+  quizzes: {
+    type: [Assessment]
+  },
+  exams: {
+    type: [Assessment]
+  },
+  notes: {
+    type: [Note]
   }
 });
 mongoose.model('Course', Course);

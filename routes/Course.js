@@ -139,8 +139,7 @@ var CourseCtrl = {
     app.post('/courses/:courseId/assignments', function(req, res, next) {
       var newAssignment = new Assignment({
         due: req.body.due,
-        description: req.body.description,
-        posted: (new Date()).getTime()
+        description: req.body.description
       });
       var query = { _id: req.params.courseId };
       var update = { $push: { assignments: newAssignment } };
