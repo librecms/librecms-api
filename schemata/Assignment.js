@@ -8,7 +8,7 @@ var Assignment = new mongoose.Schema({
     type: String
   },
   posted: {
-    type: Date,
+    type: Number,
     required: true
   }
 });
