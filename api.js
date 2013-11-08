@@ -1,5 +1,6 @@
 var express = require('express');
 var mongoose = require('mongoose');
+var connect = require('connect');
 
 mongoose.connect(process.env.LIBRECMS_MONGO_URI);
 var schemata = require('./schemata');
@@ -9,11 +10,8 @@ app.configure(function () {
   app.use(express.bodyParser());
   app.use(express.methodOverride());
   app.use(app.router);
+  app.use(connect.logger('tiny'));
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-  app.use(function(req, res, next){
-    console.log('request %s %s', req.method, req.url);
-    next();
-  });
 });
 
 var routes = require('./routes');
