@@ -3,6 +3,7 @@ var Course = mongoose.model('Course');
 var Event = mongoose.model('Event');
 var Post = mongoose.model('Post');
 var User = mongoose.model('User');
+var Assignment = mongoose.model('Assignment');
 
 var CourseCtrl = {
   init: function(app) {
@@ -69,7 +70,7 @@ var CourseCtrl = {
       var options = { "new": true };
       Course.findOneAndUpdate(query, update, options)
         .exec(function(err, course) {
-          if (err) throw err;
+          if (err) return next(err);
           return res.json(201, newPost);
         });
     });
@@ -82,7 +83,7 @@ var CourseCtrl = {
       var query = { _id: req.params.courseId };
       Course.findOne(query, filter)
         .exec(function(err, course) {
-          if (err) throw err;
+          if (err) return next(err);
           if (!course) return res.end(404);
           return res.json(course.posts || []);
         });
@@ -102,7 +103,7 @@ var CourseCtrl = {
       var query = { _id: req.params.courseId };
       Course.findOneAndUpdate(query, update, options)
         .exec(function(err, course) {
-          if (err) throw err;
+          if (err) return next(err);
           return res.json(201, newEvent);
         });
     });
@@ -115,12 +116,13 @@ var CourseCtrl = {
       var query = { _id: req.params.courseId };
       Course.findOne(query, filter)
         .exec(function(err, course) {
-          if (err) throw err;
+          if (err) return next(err);
           if (!course) return res.end(404);
           return res.json(course.events || []);
         });
     });
 
+    // ******** Course Assignments **********
     // Get assignments by course ID
     // @TODO pagination
     app.get('/courses/:courseId/assignments', function(req, res, next) {
@@ -129,9 +131,25 @@ var CourseCtrl = {
       var query = { _id: req.params.courseId };
       Course.findOne(query, filter)
         .exec(function(err, course) {
-          if (err) throw err;
+          if (err) return next(err);
           if (!course) return res.end(404);
           return res.json(course.assignments || []);
+        });
+    });
+
+    app.post('/courses/:courseId/assignments', function(req, res, next) {
+      var newAssignment = new Assignment({
+        due: req.body.due,
+        description: req.body.description,
+        posted: (new Date()).getTime()
+      });
+      var query = { _id: req.params.courseId };
+      var update = { $push: { assignments: newAssignment } };
+      Course.findOneAndUpdate(query, update)
+        .exec(function(err, course) {
+          if (err) return next(err);
+          if (!course) return res.end(404);
+          return res.json(newAssignment);
         });
     });
 
@@ -143,7 +161,7 @@ var CourseCtrl = {
       var query = { _id: req.params.courseId };
       Course.findOne(query, filter)
         .exec(function(err, course) {
-          if (err) throw err;
+          if (err) return next(err);
           if (!course) return res.end(404);
           return res.json(course.exams || []);
         });
@@ -157,7 +175,7 @@ var CourseCtrl = {
       var query = { _id: req.params.courseId };
       Course.findOne(query, filter)
         .exec(function(err, course) {
-          if (err) throw err;
+          if (err) return next(err);
           if (!course) return res.end(404);
           return res.json(course.notes || []);
         });
@@ -171,7 +189,7 @@ var CourseCtrl = {
       var query = { _id: req.params.courseId };
       Course.findOne(query, filter)
         .exec(function(err, course) {
-          if (err) throw err;
+          if (err) return next(err);
           if (!course) return res.end(404);
           return res.json(course.quizzes || []);
         });
