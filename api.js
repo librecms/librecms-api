@@ -1,4 +1,5 @@
 var express = require('express');
+var expressValidator = require('express-validator');
 var mongoose = require('mongoose');
 var connect = require('connect');
 
@@ -8,9 +9,10 @@ var schemata = require('./schemata');
 var app = express();
 app.configure(function () {
   app.use(express.bodyParser());
+  app.use(expressValidator());
   app.use(express.methodOverride());
   app.use(app.router);
-  app.use(connect.logger('tiny'));
+  app.use(connect.logger('default'));
   app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 });
 

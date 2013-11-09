@@ -12,6 +12,10 @@ var Assignment = new mongoose.Schema({
   posted: {
     type: Number,
     required: true
+  },
+  title: {
+    type: String,
+    required: true
   }
 });
 

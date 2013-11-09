@@ -1,9 +1,12 @@
 var mongoose = require('mongoose');
+var util = require('util');
+
+var Assessment = mongoose.model('Assessment');
+var Assignment = mongoose.model('Assignment');
 var Course = mongoose.model('Course');
 var Event = mongoose.model('Event');
 var Post = mongoose.model('Post');
 var User = mongoose.model('User');
-var Assignment = mongoose.model('Assignment');
 
 var CourseCtrl = {
   init: function(app) {
@@ -20,6 +23,13 @@ var CourseCtrl = {
 
     // Create new course
     app.post('/courses', function(req, res, next) {
+      req.checkBody('name', 'Invalid name').notEmpty();
+
+      var errors = req.validationErrors();
+      if (errors) {
+        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      }
+
       var newCourse = new Course({ 
         name: req.body.name 
       });
@@ -31,19 +41,35 @@ var CourseCtrl = {
 
     // Get course by id
     app.get('/courses/:courseId', function(req, res, next) {
+
+      req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
+      
+      var errors = req.validationErrors();
+      if (errors) {
+        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      }
+
       var query = {
         _id: req.params.courseId
       };
       Course.findOne(query)
         .exec(function(err, course) {
           if (err) return next(err);
-          if (!course) return res.end(404);
+          if (!course) return next(null, false);
           return res.json(course);
         });
     });
 
     // Register a User to a Course (add user to 'students' set)
     app.post('/courses/:courseId/register', function(req, res, next) {
+      req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
+      req.checkBody('studentId', 'invalid studentId').notEmpty();
+      
+      var errors = req.validationErrors();
+      if (errors) {
+        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      }
+
       var student = {
         userId: req.body.studentId
       };
@@ -53,14 +79,21 @@ var CourseCtrl = {
         .exec(function(err, course) {
           if (err) return next(err);
           if (!course) return next(null, false);
-          res.status(200);
-          return res.end();
+          return next(null, student);
         });
     });
 
     // ******** Course Timeline Posts **********
     // Create new post
     app.post('/courses/:courseId/posts', function(req, res, next) {
+      req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
+      req.checkBody('text', 'invalid text').notEmpty();
+      
+      var errors = req.validationErrors();
+      if (errors) {
+        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      }
+
       var newPost = new Post({
         date: (new Date()).getTime(),
         text: req.body.text 
@@ -78,13 +111,19 @@ var CourseCtrl = {
     // Get posts by course ID
     // @TODO pagination
     app.get('/courses/:courseId/posts', function(req, res, next) {
+      req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
+      
+      var errors = req.validationErrors();
+      if (errors) {
+        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      }
+
       var filter = { posts: true };
-      var startDate = req.body.startDate || (new Date()).getTime();
       var query = { _id: req.params.courseId };
       Course.findOne(query, filter)
         .exec(function(err, course) {
           if (err) return next(err);
-          if (!course) return res.end(404);
+          if (!course) return next(null, false);
           return res.json(course.posts || []);
         });
     });
@@ -92,6 +131,17 @@ var CourseCtrl = {
     // ******** Course Events **********
     // Create new event
     app.post('/courses/:courseId/events', function(req, res, next) {
+      req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
+      req.checkBody('startDate', 'invalid startDate').notEmpty().isInt();
+      req.checkBody('endDate', 'invalid endDate').notEmpty().isInt();
+      req.checkBody('description', 'invalid description').notEmpty();
+      req.checkBody('title', 'invalid title').notEmpty();
+
+      var errors = req.validationErrors();
+      if (errors) {
+        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      }
+
       var newEvent = new Event({
         startDate: req.body.startDate,
         endDate: req.body.endDate,
@@ -112,84 +162,213 @@ var CourseCtrl = {
     // @TODO pagination
     // @TODO query by dates
     app.get('/courses/:courseId/events', function(req, res, next) {
+      req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
+      
+      var errors = req.validationErrors();
+      if (errors) {
+        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      }
+
       var filter = { events: true };
       var query = { _id: req.params.courseId };
       Course.findOne(query, filter)
         .exec(function(err, course) {
           if (err) return next(err);
-          if (!course) return res.end(404);
+          if (!course) return next(null, false);
           return res.json(course.events || []);
         });
     });
 
     // ******** Course Assignments **********
     // Get assignments by course ID
-    // @TODO pagination
     app.get('/courses/:courseId/assignments', function(req, res, next) {
+      req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
+      
+      var errors = req.validationErrors();
+      if (errors) {
+        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      }
+
       var filter = { assignments: true };
       var query = { _id: req.params.courseId };
       Course.findOne(query, filter)
         .exec(function(err, course) {
           if (err) return next(err);
-          if (!course) return res.end(404);
+          if (!course) return next(null, false);
           return res.json(course.assignments || []);
         });
     });
 
+    // Create new assignment by courseId
     app.post('/courses/:courseId/assignments', function(req, res, next) {
+      req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
+      req.checkBody('due', 'invalid due date').notEmpty().isInt();
+      req.checkBody('description', 'invalid description').notEmpty();
+      req.checkBody('title', 'invalid title').notEmpty();
+
+      var errors = req.validationErrors();
+      if (errors) {
+        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      }
+
       var newAssignment = new Assignment({
         due: req.body.due,
-        description: req.body.description
+        description: req.body.description,
+        posted: (new Date()).getTime(),
+        title: req.body.title
       });
       var query = { _id: req.params.courseId };
       var update = { $push: { assignments: newAssignment } };
       Course.findOneAndUpdate(query, update)
         .exec(function(err, course) {
           if (err) return next(err);
-          if (!course) return res.end(404);
+          if (!course) return next(null, false);
           return res.json(newAssignment);
         });
     });
 
+    // ******** Course Exams **********
     // Get exams by course ID
-    // @TODO pagination
     app.get('/courses/:courseId/exams', function(req, res, next) {
+      req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
+      
+      var errors = req.validationErrors();
+      if (errors) {
+        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      }
+
       var filter = { exams: true };
-      var startDate = req.body.startDate || (new Date()).getTime();
       var query = { _id: req.params.courseId };
       Course.findOne(query, filter)
         .exec(function(err, course) {
           if (err) return next(err);
-          if (!course) return res.end(404);
+          if (!course) return next(null, false);
           return res.json(course.exams || []);
         });
     });
+    
+    // Create a new exam given courseId
+    app.post('/courses/:courseId/exams', function(req, res, next) {
+      req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
+      req.checkBody('due', 'invalid due date').notEmpty().isInt();
+      req.checkBody('description', 'invalid description').notEmpty();
+      req.checkBody('title', 'invalid title').notEmpty();
 
+      var errors = req.validationErrors();
+      if (errors) {
+        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      }
+
+      var newExam = new Assessment({
+        due: req.body.due,
+        description: req.body.description,
+        posted: (new Date()).getTime(),
+        title: req.body.title
+      });
+      var query = { _id: req.params.courseId };
+      var update = { $push: { exams: newExam } };
+      Course.findOneAndUpdate(query, update)
+        .exec(function(err, course) {
+          if (err) return next(err);
+          if (!course) return next(null, false);
+          return res.json(newAssignment);
+        });
+    });
+
+    // ******** Course Notes **********
     // Get notes by course ID
     // @TODO pagination
     app.get('/courses/:courseId/notes', function(req, res, next) {
+      req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
+      
+      var errors = req.validationErrors();
+      if (errors) {
+        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      }
+
       var filter = { notes: true };
-      var startDate = req.body.startDate || (new Date()).getTime();
       var query = { _id: req.params.courseId };
       Course.findOne(query, filter)
         .exec(function(err, course) {
           if (err) return next(err);
-          if (!course) return res.end(404);
+          if (!course) return next(null, false);
           return res.json(course.notes || []);
         });
     });
 
+    // Create a new note given courseId
+    app.post('/courses/:courseId/notes', function(req, res, next) {
+      req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
+      req.checkBody('due', 'invalid due date').notEmpty().isInt();
+      req.checkBody('description', 'invalid description').notEmpty();
+      req.checkBody('title', 'invalid title').notEmpty();
+
+      var errors = req.validationErrors();
+      if (errors) {
+        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      }
+
+      var newNote = new Note({
+        due: req.body.due,
+        description: req.body.description,
+        posted: (new Date()).getTime(),
+        title: req.body.title
+      });
+      var query = { _id: req.params.courseId };
+      var update = { $push: { notes: newNote } };
+      Course.findOneAndUpdate(query, update)
+        .exec(function(err, course) {
+          if (err) return next(err);
+          if (!course) return next(null, false);
+          return res.json(newNote);
+        });
+    });
+
+    // ******** Course Quizzes **********
     // Get quizzes by course ID
     // @TODO pagination
     app.get('/courses/:courseId/quizzes', function(req, res, next) {
+      req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
+      
+      var errors = req.validationErrors();
+      if (errors) {
+        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      }
+
       var filter = { quizzes: true };
-      var startDate = req.body.startDate || (new Date()).getTime();
       var query = { _id: req.params.courseId };
       Course.findOne(query, filter)
         .exec(function(err, course) {
           if (err) return next(err);
-          if (!course) return res.end(404);
+          if (!course) return next(null, false);
           return res.json(course.quizzes || []);
+        });
+    });
+
+    app.post('/courses/:courseId/quizzes', function(req, res, next) {
+      req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
+      req.checkBody('due', 'invalid due date').notEmpty().isInt();
+      req.checkBody('description', 'invalid description').notEmpty();
+      req.checkBody('title', 'invalid title').notEmpty();
+
+      var errors = req.validationErrors();
+      if (errors) {
+        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      }
+
+      var newQuiz = new Assessment({
+        due: req.body.due,
+        description: req.body.description,
+        posted: (new Date()).getTime(),
+        title: req.body.title
+      });
+      var query = { _id: req.params.courseId };
+      var update = { $push: { quizzes: newQuiz } };
+      Course.findOneAndUpdate(query, update)
+        .exec(function(err, course) {
+          if (err) return next(err);
+          if (!course) return next(null, false);
+          return res.json(newQuiz);
         });
     });
   }

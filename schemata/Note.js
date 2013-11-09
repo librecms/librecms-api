@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+
 var Note = new mongoose.Schema({
   title: {
     type: String,
