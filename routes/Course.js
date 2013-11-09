@@ -228,6 +228,36 @@ var CourseCtrl = {
         });
     });
 
+    // Get assignment by assignmentID and course Id
+    app.get('/courses/:courseId/assignments/:assignmentId', function(req, res, next) {
+      req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
+      req.assert('assignmentId').is(/^[0-9a-fA-F]{24}$/);
+      
+      var errors = req.validationErrors();
+      if (errors) {
+        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      }
+      
+      Course.findOne({ _id: req.params.courseId, "assignments._id": req.params.assignmentId})
+        .exec(function(err, course) {
+          if (err) return next(err);
+          if (!course) return next(null, false);
+          if (!course.assignments) return next(null, false);
+
+          // This is slow way: better way would be to optimize using aggregation framework. 
+          // Neglecting to do so since assignments list is going to be small ( < 100 ) for most cases
+          // and aggregation is much harder to maintain.
+          course.assignments.forEach(function(assignment) {
+            if (mongoose.Schema.ObjectId(assignment._id) === 
+                mongoose.Schema.ObjectId(req.params.assignmentId)) {
+              return res.json(assignment);
+            }
+          });
+          return next(null, false);
+        });
+
+    });
+
     // ******** Course Exams **********
     // Get exams by course ID
     app.get('/courses/:courseId/exams', function(req, res, next) {

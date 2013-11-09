@@ -22,7 +22,6 @@ var AssignmentSubmissionCtrl = {
         "assignments._id": req.params.assignmentId,
         "students.userId": req.body.studentId
       };
-      console.dir(query);
       Course.findOne(query, {students: true, assignments: true})
         .exec(function(err, course) {
           if (err) return next(err);
