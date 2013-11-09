@@ -1,9 +1,7 @@
 var mongoose = require('mongoose');
 
 var Assessment = require('./Assessment');
-var AssessmentSubmission = require('./AssessmentSubmission');
 var Assignment = require('./Assignment');
-var AssignmentSubmission = require('./AssignmentSubmission');
 var Content = require('./Content');
 var Event = require('./Event');
 var Note = require('./Note');
@@ -19,18 +17,6 @@ var Course = new mongoose.Schema({
       userId: {
         type: String,
         required: true
-      },
-      assignments: {
-        type: [AssignmentSubmission],
-        default: [],
-        unique: false,
-        indexed: false
-      },
-      assessments: {
-        type: [AssessmentSubmission],
-        default: [],
-        unique: false,
-        indexed: false
       }
     }],
     default: [],

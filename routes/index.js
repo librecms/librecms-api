@@ -3,4 +3,6 @@ module.exports.init = function(app) {
   CourseCtrl.init(app);
   var UserCtrl = require('./User');
   UserCtrl.init(app);
+  var AssignmentSubmissionCtrl = require('./AssignmentSubmission');
+  AssignmentSubmissionCtrl.init(app);
 };

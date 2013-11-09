@@ -3,6 +3,7 @@ var util = require('util');
 
 var Assessment = mongoose.model('Assessment');
 var Assignment = mongoose.model('Assignment');
+var AssignmentSubmission = mongoose.model('AssignmentSubmission');
 var Course = mongoose.model('Course');
 var Event = mongoose.model('Event');
 var Post = mongoose.model('Post');

@@ -2,7 +2,17 @@ var mongoose = require('mongoose');
 
 var AssignmentSubmission = new mongoose.Schema({
   description: String,
-  attachments: [String]
+  collaborators: [String],
+  attachments: [String],
+  courseId: {
+    type: String,
+    required: true
+  },
+  studentId: {
+    type: String,
+    required: true
+  },
+  posted: Number
 });
 mongoose.model('AssignmentSubmission', AssignmentSubmission);
 
