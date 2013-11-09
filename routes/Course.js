@@ -247,13 +247,17 @@ var CourseCtrl = {
           // This is slow way: better way would be to optimize using aggregation framework. 
           // Neglecting to do so since assignments list is going to be small ( < 100 ) for most cases
           // and aggregation is much harder to maintain.
+          var responded = false;
           course.assignments.forEach(function(assignment) {
             if (mongoose.Schema.ObjectId(assignment._id) === 
                 mongoose.Schema.ObjectId(req.params.assignmentId)) {
+              responded = true;
               return res.json(assignment);
             }
           });
-          return next(null, false);
+          if (!responded) {
+            return next(null, false);
+          }
         });
 
     });
