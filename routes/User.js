@@ -53,23 +53,23 @@ var UserCtrl = {
 
     // GET events by userId
     app.get('/users/:userId/events', function(req, res, next) {
-      // db.courses.aggregate([ {$match: {"students.userId": "527840d3123657810a000007"} }, {$project: {"events": true, _id: false } }, { $unwind: "$events" }, {$match: {"events.startDate": {$gte:1383505423717 }} } ]);
+      // db.courses.aggregate([ {$match: {"students.userId": "527840d3123657810a000007"} }, {$project: {"events": true, _id: false } }, { $unwind: "$events" }, {$match: {"events.start": {$gte:1383505423717 }} } ]);
 
       req.assert('userId').is(/^[0-9a-fA-F]{24}$/);
-      req.assert('startDate', 'Invalid startDate').isInt();
+      req.assert('start', 'Invalid start').isInt();
       
       var errors = req.validationErrors();
       if (errors) {
         return res.send('There have been validation errors: ' + util.inspect(errors), 400);
       }
 
-      var startDate = req.query.startDate;
+      var start = req.query.start;
 
       var pipe = [
         { $match: { "students.userId": req.params.userId } },
         { $project: {_id: false, events: true } },
         { $unwind: "$events" },
-        { $match: {"events.startDate": { $gte: Number(startDate) } } }
+        { $match: {"events.start": { $gte: Number(start) } } }
       ];
 
       Course.aggregate(pipe, function(err, results) {

@@ -133,8 +133,8 @@ var CourseCtrl = {
     // Create new event
     app.post('/courses/:courseId/events', function(req, res, next) {
       req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
-      req.checkBody('startDate', 'invalid startDate').notEmpty().isInt();
-      req.checkBody('endDate', 'invalid endDate').notEmpty().isInt();
+      req.checkBody('start', 'invalid start').notEmpty().isInt();
+      req.checkBody('end', 'invalid end').notEmpty().isInt();
       req.checkBody('description', 'invalid description').notEmpty();
       req.checkBody('title', 'invalid title').notEmpty();
 
@@ -144,8 +144,8 @@ var CourseCtrl = {
       }
 
       var newEvent = new Event({
-        startDate: req.body.startDate,
-        endDate: req.body.endDate,
+        start: req.body.start,
+        end: req.body.end,
         description: req.body.description,
         title: req.body.title 
       });
