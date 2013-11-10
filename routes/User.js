@@ -1,4 +1,6 @@
 var mongoose = require('mongoose');
+var util = require('util');
+
 var User = mongoose.model('User');
 var Course = mongoose.model('Course');
 
@@ -47,6 +49,38 @@ var UserCtrl = {
         .exec(function(err, courses) {
           return res.json(courses);
         });
+    });
+
+    // GET events by userId
+    app.get('/users/:userId/events', function(req, res, next) {
+      // db.courses.aggregate([ {$match: {"students.userId": "527840d3123657810a000007"} }, {$project: {"events": true, _id: false } }, { $unwind: "$events" }, {$match: {"events.startDate": {$gte:1383505423717 }} } ]);
+
+      req.assert('userId').is(/^[0-9a-fA-F]{24}$/);
+      req.assert('startDate', 'Invalid startDate').isInt();
+      
+      var errors = req.validationErrors();
+      if (errors) {
+        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      }
+
+      var startDate = req.query.startDate;
+
+      var pipe = [
+        { $match: { "students.userId": req.params.userId } },
+        { $project: {_id: false, events: true } },
+        { $unwind: "$events" },
+        { $match: {"events.startDate": { $gte: Number(startDate) } } }
+      ];
+
+      Course.aggregate(pipe, function(err, results) {
+        if (err) return next(err);
+        if (!results) return next(null, false);
+        var events = [];
+        results.forEach(function(result) {
+          events.push(result.events);
+        });
+        return res.json(events);
+      });
     });
   }
 };
