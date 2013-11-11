@@ -53,7 +53,6 @@ var UserCtrl = {
 
     // GET events by userId
     app.get('/users/:userId/events', function(req, res, next) {
-      // db.courses.aggregate([ {$match: {"students.userId": "527840d3123657810a000007"} }, {$project: {"events": true, _id: false } }, { $unwind: "$events" }, {$match: {"events.start": {$gte:1383505423717 }} } ]);
 
       req.assert('userId').is(/^[0-9a-fA-F]{24}$/);
       req.assert('start', 'Invalid start').isInt();
