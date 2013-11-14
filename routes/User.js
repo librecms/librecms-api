@@ -7,12 +7,26 @@ var Course = mongoose.model('Course');
 var UserCtrl = {
   init: function(app) {
     app.post('/users', function(req, res, next) {
+      req.checkBody('firstName', 'invalid firstName').notEmpty();
+      req.checkBody('lastName', 'invalid lastName').notEmpty();
+      req.checkBody('userName', 'invalid userName').notEmpty();
+      req.checkBody('password', 'invalid password').notEmpty();
+      req.checkBody('role', 'invalid role').notEmpty();
+      
+      var errors = req.validationErrors();
+      if (errors) {
+        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      }
+
+      console.log(JSON.stringify(req.body));
+
       var newUser = new User({
         name: {
           first: req.body.firstName,
           last: req.body.lastName,
-          user: req.body.userName
+          user: req.body.userName,
         },
+        role: req.body.role,
         password: req.body.password
       });
       newUser.save(function(err) {
