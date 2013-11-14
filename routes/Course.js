@@ -64,23 +64,27 @@ var CourseCtrl = {
     // Register a User to a Course (add user to 'students' set)
     app.post('/courses/:courseId/register', function(req, res, next) {
       req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
-      req.checkBody('studentId', 'invalid studentId').notEmpty();
+      req.checkBody('userId', 'invalid userId').notEmpty();
       
       var errors = req.validationErrors();
       if (errors) {
         return res.send('There have been validation errors: ' + util.inspect(errors), 400);
       }
 
-      var student = {
-        userId: req.body.studentId
-      };
-      var update = { $addToSet: { students: student } };
+      var update;
+      if(req.body['type'] == 'student') {
+        update = { $addToSet: { students: req.body.userId } };
+      } else {
+        update = { $addToSet: {instructors: req.body.userId }};
+      }
+
       var query = { _id: req.params.courseId };
       Course.findOneAndUpdate(query, update)
         .exec(function(err, course) {
+
           if (err) return next(err);
           if (!course) return next(null, false);
-          return next(null, student);
+          return res.status(200).end();
         });
     });
 

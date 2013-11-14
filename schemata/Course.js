@@ -23,6 +23,11 @@ var Course = new mongoose.Schema({
     unique: false,
     indexed: false
   },
+  instructors: {
+    type: [String],
+    required: false,
+    default: []
+  },
   posts: {
     type: [Post]
   },
