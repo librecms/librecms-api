@@ -5,4 +5,7 @@ module.exports.init = function(app) {
   UserCtrl.init(app);
   var AssignmentSubmissionCtrl = require('./AssignmentSubmission');
   AssignmentSubmissionCtrl.init(app);
+
+  var Auth = require('./Auth');
+  Auth.init(app);
 };

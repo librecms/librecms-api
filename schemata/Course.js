@@ -13,15 +13,9 @@ var Course = new mongoose.Schema({
     required: true
   },
   students: {
-    type: [{
-      userId: {
-        type: String,
-        required: true
-      }
-    }],
-    default: [],
-    unique: false,
-    indexed: false
+    type: [String],
+    required: false,
+    default: []
   },
   instructors: {
     type: [String],

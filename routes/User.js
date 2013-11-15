@@ -21,11 +21,9 @@ var UserCtrl = {
       console.log(JSON.stringify(req.body));
 
       var newUser = new User({
-        name: {
-          first: req.body.firstName,
-          last: req.body.lastName,
-          user: req.body.userName,
-        },
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        userName: req.body.userName,
         role: req.body.role,
         password: req.body.password
       });
@@ -38,7 +36,7 @@ var UserCtrl = {
     // GET list of users
     // @TODO pagination
     app.get('/users', function(req, res, next) {
-      var filter = { name: true };
+      var filter = { userName: true, firstName: true, lastName: true };
       User.find({}, filter, function(err, users) {
         if (err) return next(err);
         return res.json(users);
@@ -47,17 +45,36 @@ var UserCtrl = {
 
     // GET user by ID
     app.get('/users/:userId', function(req, res, next) {
-      User.findById(req.params.userId)
+      req.assert('userId').is(/^[0-9a-fA-F]{24}$/);
+      var errors = req.validationErrors();
+      if (errors) {
+        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      }
+
+      var query = {
+        _id: req.params.userId
+      };
+      User.findOne(query)
         .exec(function(err, user) {
           if (err) return next(err);
           if (!user) return next(null, false);
-          return res.json(user);
+          user.getCourses(function(err, courses) {
+            // Mongoose items are immutable! Must convert to object first.
+            user = user.toObject();
+            user.courses = courses;
+            return res.json(user);
+          });
         });
     });
 
     // GET courses by userId
     app.get('/users/:userId/courses', function(req, res, next) {
-      var query = { "students.userId": req.params.userId };
+      var query = { 
+        $or: [
+          { students: req.params.userId },
+          { instructors: req.params.userId }
+        ]
+      };
       var filter = { name: true };
       Course.find(query, filter)
         .exec(function(err, courses) {
@@ -79,7 +96,7 @@ var UserCtrl = {
       var start = req.query.start;
 
       var pipe = [
-        { $match: { "students.userId": req.params.userId } },
+        { $match: { students: req.params.userId } },
         { $project: {_id: false, events: true } },
         { $unwind: "$events" },
         { $match: {"events.start": { $gte: Number(start) } } }

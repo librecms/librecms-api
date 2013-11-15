@@ -64,7 +64,8 @@ var CourseCtrl = {
     // Register a User to a Course (add user to 'students' set)
     app.post('/courses/:courseId/register', function(req, res, next) {
       req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
-      req.checkBody('userId', 'invalid userId').notEmpty();
+      req.checkBody('userId', /^[0-9a-fA-F]{24}$/);
+      req.checkBody('role', 'invalid role').notEmpty();
       
       var errors = req.validationErrors();
       if (errors) {
@@ -72,10 +73,12 @@ var CourseCtrl = {
       }
 
       var update;
-      if(req.body['type'] == 'student') {
+      if(req.body.role == 'student') {
         update = { $addToSet: { students: req.body.userId } };
+      } else if (req.body.role ==='instructor') {
+        update = { $addToSet: { instructors: req.body.userId }};
       } else {
-        update = { $addToSet: {instructors: req.body.userId }};
+        return res.send('user must be a student or instructor', 400);
       }
 
       var query = { _id: req.params.courseId };

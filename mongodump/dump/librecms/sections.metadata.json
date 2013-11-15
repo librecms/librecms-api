@@ -1,1 +1,0 @@
-{ "indexes" : [ { "v" : 1, "key" : { "_id" : 1 }, "ns" : "librecms.sections", "name" : "_id_" }, { "v" : 1, "key" : { "course" : 1 }, "ns" : "librecms.sections", "name" : "course_1", "background" : true, "safe" : null } ] }

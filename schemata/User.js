@@ -3,18 +3,24 @@ var bcrypt = require('bcrypt-nodejs');
 var mongoose = require('mongoose');
 
 var User = new mongoose.Schema({
-  name: {
-    first: String,
-    last: String,
-    user: {
-      type: String,
-      required: true,
-      index: {
-        unique: true
-      }
-    }
+  userName: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  firstName: {
+    type: String,
+    required: true
   },
   password: {
+    type: String,
+    required: true
+  },
+  lastName: {
+    type: String,
+    required: true
+  },
+  role: {
     type: String,
     required: true
   }
@@ -51,8 +57,8 @@ User.methods.comparePassword = function(candidate, next) {
 };
 
 // Common task, so we implement it here for DRYness
-User.static('authenticate', function(username, password, next) {
-  this.findOne({ "name.user": username }, function(err, user) {
+User.static('authenticate', function(userName, password, next) {
+  this.findOne({ userName: userName }, function(err, user) {
     if (err) return next(err);
     if (!user) return next(null, false);
     user.comparePassword(password, function(err, isCorrectPassword) {
@@ -65,6 +71,23 @@ User.static('authenticate', function(username, password, next) {
     });
   });
 });
+
+// There's probably a better way to do this.
+User.methods.getCourses = function(next) {
+  var Course = mongoose.model('Course');
+
+  var query = { 
+    $or: [
+      { students: this._id },
+      { instructors: this._id }
+    ]
+  };
+  var filter = { name: true };
+  Course.find(query, filter, function(err, courses) {
+    next(err, courses);
+  });
+
+};
 
 mongoose.model('User', User);
 
