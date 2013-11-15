@@ -11,6 +11,8 @@ var AuthCtrl = {
         res.cookie('user', JSON.stringify({
           _id: user._id,
           userName: user.userName || 'unknown',
+          firstName: user.firstName || 'Uknown',
+          lastName: user.lastName || 'User',
           role: user.role || 'public',
           courses: user.courses || []
         }));
