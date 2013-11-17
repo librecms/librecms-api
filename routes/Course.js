@@ -420,6 +420,34 @@ var CourseCtrl = {
           return res.json(newQuiz);
         });
     });
+
+    app.get('/courses/:courseId/students', function(req, res, next) {
+      req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
+      var errors = req.validationErrors();
+      if (errors) {
+        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      }
+
+      var courseQuery = { _id: req.params.courseId };
+      var courseFilter = { students: true };
+      Course.findOne(courseQuery, courseFilter)
+        .exec(function(err, course) {
+          if (err) return next(err);
+          if (!course) return next(null, false);
+
+          var studentIds = course.toObject().students;
+          studentIds = studentIds.map(function(studentId) {
+            return (studentId);
+          });
+          var userQuery = { _id: { $in: studentIds } };
+          var userFilter = { firstName: true, lastName: true, _id: true };
+          User.find(userQuery, userFilter)
+            .exec(function(err, users) {
+              if (err) return next(err);
+              return res.json(users);
+            });
+        });
+    });
   }
 };
 
