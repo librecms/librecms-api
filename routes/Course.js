@@ -260,12 +260,19 @@ var CourseCtrl = {
         if (err) return next(err);
         if (!result) return next(null, false);
         if (result.length === 0) return next(null, false);
-        var assignments = result[0].assignments;
-        if (!assignments) return next(null, false);
-        if (assignments.length === 0) return next(null, false);
-        return res.json(assignments);
+        var assignment = result[0].assignments;
+        if (!assignment) return next(null, false);
+
+        var submissionQuery = {
+          assignmentId: assignment._id
+        };
+        AssignmentSubmission.find(submissionQuery)
+          .exec(function(err, submissions) {
+            if (err) return next(err);
+            assignment.submissions = submissions;
+            return res.json(assignment);
+          });
       });
-      
     });
 
 
