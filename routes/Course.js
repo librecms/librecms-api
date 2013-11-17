@@ -1,4 +1,5 @@
 var mongoose = require('mongoose');
+var ObjectId = mongoose.Types.ObjectId;
 var util = require('util');
 
 var Assessment = mongoose.model('Assessment');
@@ -244,29 +245,28 @@ var CourseCtrl = {
       if (errors) {
         return res.send('There have been validation errors: ' + util.inspect(errors), 400);
       }
+
+      var assignmentId = ObjectId.fromString(req.params.assignmentId);
+      var courseId = ObjectId.fromString(req.params.courseId);
+
+      var pipe = [
+        { $match: { _id: courseId, "assignments._id": assignmentId } },
+        { $unwind: "$assignments" },
+        { $match: {"assignments._id": assignmentId } },
+        { $project: { _id: false, assignments: true } }
+      ];
+
+      Course.aggregate(pipe, function(err, result) {
+        if (err) return next(err);
+        if (!result) return next(null, false);
+        if (result.length === 0) return next(null, false);
+        var assignments = result[0].assignments;
+        if (!assignments) return next(null, false);
+        if (assignments.length === 0) return next(null, false);
+        console.log(JSON.stringify(assignments));
+        return res.json(assignments);
+      });
       
-      Course.findOne({ _id: req.params.courseId, "assignments._id": req.params.assignmentId})
-        .exec(function(err, course) {
-          if (err) return next(err);
-          if (!course) return next(null, false);
-          if (!course.assignments) return next(null, false);
-
-          // This is slow way: better way would be to optimize using aggregation framework. 
-          // Neglecting to do so since assignments list is going to be small ( < 100 ) for most cases
-          // and aggregation is much harder to maintain.
-          var responded = false;
-          course.assignments.forEach(function(assignment) {
-            if (mongoose.Schema.ObjectId(assignment._id) === 
-                mongoose.Schema.ObjectId(req.params.assignmentId)) {
-              responded = true;
-              return res.json(assignment);
-            }
-          });
-          if (!responded) {
-            return next(null, false);
-          }
-        });
-
     });
 
     // ******** Course Exams **********
