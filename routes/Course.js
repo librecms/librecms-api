@@ -263,7 +263,6 @@ var CourseCtrl = {
         var assignments = result[0].assignments;
         if (!assignments) return next(null, false);
         if (assignments.length === 0) return next(null, false);
-        console.log(JSON.stringify(assignments));
         return res.json(assignments);
       });
       
