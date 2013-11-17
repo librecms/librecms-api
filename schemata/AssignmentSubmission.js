@@ -12,6 +12,10 @@ var AssignmentSubmission = new mongoose.Schema({
     type: String,
     required: true
   },
+  assignmentId: {
+    type: String,
+    required: true
+  },
   posted: Number
 });
 mongoose.model('AssignmentSubmission', AssignmentSubmission);

@@ -268,6 +268,7 @@ var CourseCtrl = {
       
     });
 
+
     // ******** Course Exams **********
     // Get exams by course ID
     app.get('/courses/:courseId/exams', function(req, res, next) {

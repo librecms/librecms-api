@@ -3,8 +3,8 @@ module.exports.init = function(app) {
   CourseCtrl.init(app);
   var UserCtrl = require('./User');
   UserCtrl.init(app);
-  var AssignmentSubmissionCtrl = require('./AssignmentSubmission');
-  AssignmentSubmissionCtrl.init(app);
+  var AssignmentCtrl = require('./Assignment');
+  AssignmentCtrl.init(app);
 
   var Auth = require('./Auth');
   Auth.init(app);
