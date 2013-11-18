@@ -27,3 +27,8 @@ passport.use(new LocalStrategy(function(username, password, next) {
     User.authenticate(username, password, next);
   });
 }));
+
+module.exports.ensureAuthenticated = function(req, res, next) {
+  if (req.isAuthenticated()) { return next(); }
+  res.status(401).end();
+};

@@ -1,17 +1,23 @@
 var mongoose = require('mongoose');
 var Submission = mongoose.model('AssignmentSubmission');
+var auth = require('../auth');
 
 var AssignmentCtrl = {
   init: function(app) {
     app.post('/courses/:courseId/assignments/:assignmentId/submit',
+      auth.ensureAuthenticated,
       function(req, res, next) {
         req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
         req.assert('assignmentId').is(/^[0-9a-fA-F]{24}$/);
-        req.checkBody('studentId', 'invalid userName').notEmpty();
         
         var errors = req.validationErrors();
         if (errors) {
           return res.send('There have been validation errors: ' + util.inspect(errors), 400);
+        }
+
+        var student = req.user;
+        if (!student || !student._id) {
+          return res.status(401).end();
         }
 
         var newSubmission = new Submission({
@@ -19,7 +25,7 @@ var AssignmentCtrl = {
           collaborators: req.body.collaborators,
           attachments: req.body.attachments,
           courseId: req.params.courseId,
-          studentId: req.body.studentId,
+          studentId: student._id,
           assignmentId: req.params.assignmentId,
           posted: (new Date()).getTime()
         });
