@@ -288,17 +288,21 @@ var CourseCtrl = {
       }
 
       var updateAssignment = {
+        _id: req.body._id,
         due: req.body.due,
         description: req.body.description,
         title: req.body.title
       };
-      var query = { _id: req.params.courseId };
-      var update = { $push: { assignments: updateAssignment } };
+      var query = { 
+        _id: req.params.courseId,
+        "assignments._id" ; req.params._id
+      };
+      var update = { $pull: { assignments: updateAssignment._id } };
       Course.findOneAndUpdate(query, update)
         .exec(function(err, course) {
           if (err) return next(err);
           if (!course) return next(null, false);
-          return res.json(newAssignment);
+          return res.json(updateAssignment);
         });
     });
 
