@@ -275,6 +275,32 @@ var CourseCtrl = {
       });
     });
 
+    //Update assignment by assignmentId and courseId
+    app.put('/courses/:courseId/assignments', function(req, res, next) {
+      req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
+      req.checkBody('due', 'invalid due date').notEmpty().isInt();
+      req.checkBody('description', 'invalid description').notEmpty();
+      req.checkBody('title', 'invalid title').notEmpty();
+
+      var errors = req.validationErrors();
+      if (errors) {
+        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      }
+
+      var updateAssignment = {
+        due: req.body.due,
+        description: req.body.description,
+        title: req.body.title
+      };
+      var query = { _id: req.params.courseId };
+      var update = { $push: { assignments: updateAssignment } };
+      Course.findOneAndUpdate(query, update)
+        .exec(function(err, course) {
+          if (err) return next(err);
+          if (!course) return next(null, false);
+          return res.json(newAssignment);
+        });
+    });
 
     // ******** Course Exams **********
     // Get exams by course ID
