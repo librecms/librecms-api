@@ -41,7 +41,6 @@ var AssignmentCtrl = {
       auth.ensureAuthenticated,
       auth.ensureInstructor,
       function(req, res, next) {
-        console.log('delete');
         req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
         req.assert('assignmentId').is(/^[0-9a-fA-F]{24}$/);
         var errors = req.validationErrors();
@@ -64,7 +63,7 @@ var AssignmentCtrl = {
           .exec(function(err, course) {
             if (err) return next(err);
             if (!course) return next(null, false);
-            return res.status(200).end();
+            return res.json(course.assignments);
         });
       });
   }
