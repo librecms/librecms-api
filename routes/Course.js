@@ -295,7 +295,7 @@ var CourseCtrl = {
       };
       var query = { 
         _id: req.params.courseId,
-        "assignments._id" ; req.params._id
+        "assignments._id" : req.params._id
       };
       var update = { $pull: { assignments: updateAssignment._id } };
       Course.findOneAndUpdate(query, update)
