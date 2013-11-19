@@ -20,14 +20,16 @@ require('./auth');
 var app = express();
 app.configure(function () {
   app.use(expressValidator());
+  app.use(express.logger());
   app.use(express.cookieParser());
   app.use(express.bodyParser());
   app.use(express.methodOverride());
   app.use(express.session({ secret: 'keyboard cat' }));
+  // Initialize Passport!  Also use passport.session() middleware, to support
+  // persistent login sessions (recommended).
   app.use(passport.initialize());
   app.use(passport.session());
   app.use(app.router);
-  app.use(connect.logger('default'));
 });
 
 // API Routes definitions

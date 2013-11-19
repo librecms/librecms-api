@@ -29,14 +29,11 @@ passport.use(new LocalStrategy(function(username, password, next) {
 }));
 
 module.exports.ensureAuthenticated = function(req, res, next) {
-  console.log('ensureAuthenticated isAuthenticated = ' + req.isAuthenticated());
-  console.log('ensureAuthenticated user = ' + JSON.stringify(req.user, null, 4));
   if (req.isAuthenticated()) { return next(); }
   res.status(401).end();
 };
 
 module.exports.ensureInstructor = function(req, res, next) {
-  console.log('ensureInstructor req.user = ' + JSON.stringify(req.user, null, 4));
   if (!req.isAuthenticated() || !req.user || !req.user.role ||
       req.user.role !== 'instructor') {
     return res.status(403).end();
