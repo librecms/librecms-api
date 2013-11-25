@@ -20,7 +20,8 @@
     "connect": "~2.11.0",
     "express-validator": "~0.8.0",
     "passport-local": "~0.1.6",
-    "passport": "~0.1.17"
+    "passport": "~0.1.17",
+    "fileupload": "~0.2.4"
   },
   "devDependencies": {
     "grunt": "~0.4.1",

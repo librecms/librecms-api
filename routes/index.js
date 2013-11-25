@@ -8,4 +8,7 @@ module.exports.init = function(app) {
 
   var Auth = require('./Auth');
   Auth.init(app);
+
+  var upload = require('./upload');
+  upload.init(app);
 };
