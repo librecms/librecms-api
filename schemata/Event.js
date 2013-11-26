@@ -16,6 +16,10 @@ var Event = new mongoose.Schema({
   end: {
     type: Number,
     required: true
+  },
+  status: {
+    type: Boolean,
+    required: true
   }
 });
 mongoose.model('Event', Event);

@@ -55,31 +55,31 @@ var UserCtrl = {
         _id: req.params.userId
       };
       User.findOne(query)
-        .exec(function(err, user) {
-          if (err) return next(err);
-          if (!user) return next(null, false);
-          user.getCourses(function(err, courses) {
+      .exec(function(err, user) {
+        if (err) return next(err);
+        if (!user) return next(null, false);
+        user.getCourses(function(err, courses) {
             // Mongoose items are immutable! Must convert to object first.
             user = user.toObject();
             user.courses = courses;
             return res.json(user);
           });
-        });
+      });
     });
 
     // GET courses by userId
     app.get('/users/:userId/courses', function(req, res, next) {
       var query = { 
         $or: [
-          { students: req.params.userId },
-          { instructors: req.params.userId }
+        { students: req.params.userId },
+        { instructors: req.params.userId }
         ]
       };
       var filter = { name: true };
       Course.find(query, filter)
-        .exec(function(err, courses) {
-          return res.json(courses);
-        });
+      .exec(function(err, courses) {
+        return res.json(courses);
+      });
     });
 
     // GET events by userId
@@ -90,16 +90,16 @@ var UserCtrl = {
       
       var errors = req.validationErrors();
       if (errors) {
-        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
+        return res.send('There have been validation errors: safd' + util.inspect(errors), 400);
       }
 
       var start = req.query.start;
 
       var pipe = [
-        { $match: { students: req.params.userId } },
-        { $project: {_id: false, events: true } },
-        { $unwind: "$events" },
-        { $match: {"events.start": { $gte: Number(start) } } }
+      { $match: { students: req.params.userId } },
+      { $project: {_id: false, events: true } },
+      { $unwind: "$events" },
+      { $match: {"events.start": { $gte: Number(start) } } }
       ];
 
       Course.aggregate(pipe, function(err, results) {
@@ -107,12 +107,48 @@ var UserCtrl = {
         if (!results) return next(null, false);
         var events = [];
         results.forEach(function(result) {
+          console.log(JSON.stringify(result.events));
           events.push(result.events);
         });
         return res.json(events);
       });
     });
+
+    // toggle clicked event status
+    app.get('/users/:userId/events/:eventId', function(req, res) {
+      req.assert('userId').is(/^[0-9a-fA-F]{24}$/);
+      req.assert('eventId').is(/^[0-9a-fA-F]{24}$/);
+
+      var errors = req.validationErrors();
+      if (errors) {
+        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      }
+
+      var start = req.query.start;
+
+      var pipe = [
+      { $match: { students: req.params.userId } },
+      { $project: {_id: false, events: true } },
+      { $unwind: "$events" }
+      ];
+
+      Course.aggregate(pipe, function(err, results) {
+        
+        if (err) return next(err);
+        if (!results) return next(null, false);
+        var events = [];
+        results.forEach(function(result) {
+          console.log(result.events._id);
+          console.log(req.params.eventId);
+          if(result.events._id == req.params.eventId) {
+            results.events.completed = !results.events.completed;
+            events.push(result.events);
+            }
+        });
+        return res.json(events);
+      });
+    });
   }
-};
+}
 
 module.exports = UserCtrl;

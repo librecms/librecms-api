@@ -155,8 +155,10 @@ var CourseCtrl = {
         start: req.body.start,
         end: req.body.end,
         description: req.body.description,
-        title: req.body.title 
+        title: req.body.title,
+        completed: false
       });
+
       var update = { $push: { events: newEvent } };
       var options = { "new": true };
       var query = { _id: req.params.courseId };
@@ -171,7 +173,7 @@ var CourseCtrl = {
     // @TODO pagination
     // @TODO query by dates
     app.get('/courses/:courseId/events', function(req, res, next) {
-      req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
+      req.assert('courseId').is(/^[0-9a-fA-F]{24}$/); 
       
       var errors = req.validationErrors();
       if (errors) {
