@@ -17,7 +17,7 @@ var Event = new mongoose.Schema({
     type: Number,
     required: true
   },
-  status: {
+  completed: {
     type: Boolean,
     required: true
   }
