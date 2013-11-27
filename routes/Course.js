@@ -453,6 +453,29 @@ var CourseCtrl = {
         });
     });
 
+    // ******** Course Grades **********
+    // Get grades by course ID
+    app.get('/courses/:courseId/grades', function(req, res, next) {
+      req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
+      
+      var errors = req.validationErrors();
+      if (errors) {
+        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      }
+
+      var filter = { grades: true };
+      var query = { 
+        userId: req.params.courseId,
+        courseId: req.params.userId,
+      };
+      Course.findOne(query, filter)
+        .exec(function(err, course) {
+          if (err) return next(err);
+          if (!course) return next(null, false);
+          return res.json(course.user.grades || []);
+        });
+    });
+
     app.get('/courses/:courseId/students', function(req, res, next) {
       req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
       var errors = req.validationErrors();
