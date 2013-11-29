@@ -1,6 +1,10 @@
 var mongoose = require('mongoose');
 
 var AssignmentSubmission = new mongoose.Schema({
+  studentName: {
+    type: String,
+    required: true
+  },
   description: String,
   collaborators: [String],
   attachments: [String],
