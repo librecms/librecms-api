@@ -32,6 +32,7 @@ var AssignmentCtrl = {
           studentName: student.firstName + " " + student.lastName,
           posted: (new Date()).getTime()
         });
+
         newSubmission.save(function(err) {
           if (err) return next(err);
           return res.json(newSubmission);
