@@ -115,7 +115,7 @@ var UserCtrl = {
     });
 
     // toggle clicked event status
-    app.get('/users/:userId/events/:eventId', function(req, res) {
+    app.post('/users/:userId/events/:eventId', function(req, res) {
       req.assert('userId').is(/^[0-9a-fA-F]{24}$/);
       req.assert('eventId').is(/^[0-9a-fA-F]{24}$/);
 
@@ -141,6 +141,7 @@ var UserCtrl = {
           console.log(result.events._id);
           console.log(req.params.eventId);
           if(result.events._id == req.params.eventId) {
+            // Mongoose call, may need reworked
             results.events.completed = !results.events.completed;
             events.push(result.events);
             }
