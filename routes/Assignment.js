@@ -29,7 +29,7 @@ var AssignmentCtrl = {
           courseId: req.params.courseId,
           studentId: student._id,
           assignmentId: req.params.assignmentId,
-          studentName: student.firstname + " " + student.lastName,
+          studentName: student.firstName + " " + student.lastName,
           posted: (new Date()).getTime()
         });
         newSubmission.save(function(err) {
