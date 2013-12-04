@@ -31,6 +31,11 @@ var Assignment = new mongoose.Schema({
       required: true
     }
   }],
+  completed: {
+    type: [String],
+    required: true,
+    default: []
+  }
 });
 
 mongoose.model('Assignment', Assignment);

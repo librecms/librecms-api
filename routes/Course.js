@@ -155,8 +155,7 @@ var CourseCtrl = {
         start: req.body.start,
         end: req.body.end,
         description: req.body.description,
-        title: req.body.title,
-        completed: false
+        title: req.body.title
       });
 
       var update = { $push: { events: newEvent } };
