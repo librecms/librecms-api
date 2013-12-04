@@ -7,7 +7,20 @@ var AssignmentSubmission = new mongoose.Schema({
   },
   description: String,
   collaborators: [String],
-  attachments: [String],
+  attachments: [{
+    path: {
+      type: String,
+      required: true
+    },
+    basename: {
+      type: String,
+      required: true
+    },
+    uploadPath: {
+      type: String,
+      required: true
+    }
+  }],
   courseId: {
     type: String,
     required: true
