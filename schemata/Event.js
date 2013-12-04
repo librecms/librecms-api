@@ -18,9 +18,9 @@ var Event = new mongoose.Schema({
     required: true
   },
   completed: {
-    type: Boolean, 
-    default: false,
-    required: true
+    type: [String], 
+    required: true,
+    default: []
   }
 });
 mongoose.model('Event', Event);

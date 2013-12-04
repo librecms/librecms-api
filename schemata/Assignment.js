@@ -16,6 +16,11 @@ var Assignment = new mongoose.Schema({
   title: {
     type: String,
     required: true
+  },
+  completed: {
+    type: [String],
+    required: true,
+    default: []
   }
 });
 

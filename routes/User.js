@@ -97,20 +97,20 @@ var UserCtrl = {
 
       var pipe = [
       { $match: { students: req.params.userId } },
-      { $project: {_id: false, events: true } },
-      { $unwind: "$events" },
-      { $match: {"events.start": { $gte: Number(start) } } }
+      { $project: {_id: false, assignments: true } },
+      { $unwind: "$assignments" },
+      { $match: {"assignments.due": { $gte: Number(start) } } }
       ];
 
       Course.aggregate(pipe, function(err, results) {
         if (err) return next(err);
         if (!results) return next(null, false);
-        var events = [];
+        var assignments = [];
         results.forEach(function(result) {
-          console.log(JSON.stringify(result.events));
-          events.push(result.events);
+          console.log(JSON.stringify(result.assignments));
+          assignments.push(result.assignments);
         });
-        return res.json(events);
+        return res.json(assignments);
       });
     });
 
@@ -141,10 +141,18 @@ var UserCtrl = {
           console.log(result.events._id);
           console.log(req.params.eventId);
           if(result.events._id == req.params.eventId) {
-            // Mongoose call, may need reworked
-            results.events.completed = !results.events.completed;
-            events.push(result.events);
+            if(results.events.completed.length == 0) {
+              // add _id to list
+            } else {
+              for(var i=0; i<results.events.completed.length; i++) {
+                if(req.params.userId == results.events.completed[i]) {
+                  // remove _id from list
+                } else {
+                  // add _id to list
+                }
+              }
             }
+          }
         });
         return res.json(events);
       });
