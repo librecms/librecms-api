@@ -16,7 +16,21 @@ var Assignment = new mongoose.Schema({
   title: {
     type: String,
     required: true
-  }
+  },
+  grades: [{
+    studentName: {
+      type: String,
+      required: true
+    },
+    studentId: {
+      type: String,
+      required: true
+    },
+    studentGrade: {
+      type: String,
+      required: true
+    }
+  }]
 });
 
 mongoose.model('Assignment', Assignment);
