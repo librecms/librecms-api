@@ -30,7 +30,26 @@ var Assignment = new mongoose.Schema({
       type: String,
       required: true
     }
-  }]
+  }],
+  attachments: [{
+    path: {
+      type: String,
+      required: true
+    },
+    basename: {
+      type: String,
+      required: true
+    },
+    uploadPath: {
+      type: String,
+      required: true
+    }
+  }],
+  completed: {
+    type: [String],
+    required: true,
+    default: []
+  }
 });
 
 mongoose.model('Assignment', Assignment);
