@@ -226,6 +226,7 @@ var CourseCtrl = {
         due: req.body.due,
         description: req.body.description,
         posted: (new Date()).getTime(),
+        attachments: req.body.attachments,
         title: req.body.title
       });
       var query = { _id: req.params.courseId };
@@ -308,54 +309,6 @@ var CourseCtrl = {
         });
     });
 
-    // ******** Course Exams **********
-    // Get exams by course ID
-    app.get('/courses/:courseId/exams', function(req, res, next) {
-      req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
-      
-      var errors = req.validationErrors();
-      if (errors) {
-        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
-      }
-
-      var filter = { exams: true };
-      var query = { _id: req.params.courseId };
-      Course.findOne(query, filter)
-        .exec(function(err, course) {
-          if (err) return next(err);
-          if (!course) return next(null, false);
-          return res.json(course.exams || []);
-        });
-    });
-    
-    // Create a new exam given courseId
-    app.post('/courses/:courseId/exams', function(req, res, next) {
-      req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
-      req.checkBody('due', 'invalid due date').notEmpty().isInt();
-      req.checkBody('description', 'invalid description').notEmpty();
-      req.checkBody('title', 'invalid title').notEmpty();
-
-      var errors = req.validationErrors();
-      if (errors) {
-        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
-      }
-
-      var newExam = new Assessment({
-        due: req.body.due,
-        description: req.body.description,
-        posted: (new Date()).getTime(),
-        title: req.body.title
-      });
-      var query = { _id: req.params.courseId };
-      var update = { $push: { exams: newExam } };
-      Course.findOneAndUpdate(query, update)
-        .exec(function(err, course) {
-          if (err) return next(err);
-          if (!course) return next(null, false);
-          return res.json(newAssignment);
-        });
-    });
-
     // ******** Course Notes **********
     // Get notes by course ID
     // @TODO pagination
@@ -402,54 +355,6 @@ var CourseCtrl = {
           if (err) return next(err);
           if (!course) return next(null, false);
           return res.json(newNote);
-        });
-    });
-
-    // ******** Course Quizzes **********
-    // Get quizzes by course ID
-    // @TODO pagination
-    app.get('/courses/:courseId/quizzes', function(req, res, next) {
-      req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
-      
-      var errors = req.validationErrors();
-      if (errors) {
-        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
-      }
-
-      var filter = { quizzes: true };
-      var query = { _id: req.params.courseId };
-      Course.findOne(query, filter)
-        .exec(function(err, course) {
-          if (err) return next(err);
-          if (!course) return next(null, false);
-          return res.json(course.quizzes || []);
-        });
-    });
-
-    app.post('/courses/:courseId/quizzes', function(req, res, next) {
-      req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
-      req.checkBody('due', 'invalid due date').notEmpty().isInt();
-      req.checkBody('description', 'invalid description').notEmpty();
-      req.checkBody('title', 'invalid title').notEmpty();
-
-      var errors = req.validationErrors();
-      if (errors) {
-        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
-      }
-
-      var newQuiz = new Assessment({
-        due: req.body.due,
-        description: req.body.description,
-        posted: (new Date()).getTime(),
-        title: req.body.title
-      });
-      var query = { _id: req.params.courseId };
-      var update = { $push: { quizzes: newQuiz } };
-      Course.findOneAndUpdate(query, update)
-        .exec(function(err, course) {
-          if (err) return next(err);
-          if (!course) return next(null, false);
-          return res.json(newQuiz);
         });
     });
 
