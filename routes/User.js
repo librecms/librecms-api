@@ -82,6 +82,39 @@ var UserCtrl = {
       });
     });
 
+    // GET posts by userId
+    app.get('/users/:userId/posts', function(req, res, next) {
+
+      req.assert('userId').is(/^[0-9a-fA-F]{24}$/);
+      //req.assert('start', 'Invalid start').isInt();
+      
+      var errors = req.validationErrors();
+      if (errors) {
+        return res.send('There have been validation errors: safd' + util.inspect(errors), 400);
+      }
+
+      //var start = req.query.start;
+      //db.courses.aggregate([{$match:{students:"52868c8f38f0777b4e000007"}},{$unwind:"$posts"},{$group:{_id:"$students",posts:{$addToSet:"$posts"}}}])
+      var pipe = [
+      { $match: { students: req.params.userId } },
+      { $unwind: "$posts" },
+      { $sort: { "posts.date" : -1 } },
+      //{ $group: { _id:"$students", posts:{$addToSet:"$posts"} } }
+      ];
+
+      Course.aggregate(pipe, function(err, results) {
+        if (err) return next(err);
+        if (!results) return next(null, false);
+        var posts = [];
+        results.forEach(function(result) {
+          console.log(JSON.stringify(result.posts));
+          posts.push(result.posts);
+        });
+        return res.json(posts);
+      });
+    });
+
+
     // GET events by userId
     app.get('/users/:userId/events', function(req, res, next) {
 
