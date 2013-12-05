@@ -15,3 +15,7 @@ npm install
   ``` NODE_ENV=development npm start ```
 
 Note running hasn't been tested on Windows or Mac. Let us know of any problems by filing an issue.
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/librecms/librecms-api/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
