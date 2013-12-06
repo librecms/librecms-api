@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var util = require('util');
+ObjectId = mongoose.Types.ObjectId;
 
 var User = mongoose.model('User');
 var Course = mongoose.model('Course');
@@ -139,8 +140,8 @@ var UserCtrl = {
         if (err) return next(err);
         if (!results) return next(null, false);
         var assignments = [];
+        console.log(JSON.stringify(results));
         results.forEach(function(result) {
-          console.log(JSON.stringify(result.assignments));
           assignments.push(result.assignments);
         });
         return res.json(assignments);
@@ -157,38 +158,44 @@ var UserCtrl = {
         return res.send('There have been validation errors: ' + util.inspect(errors), 400);
       }
 
-      var start = req.query.start;
+      var toggleId = ObjectId(req.params.eventId);
+      console.log(toggleId);
+      // Course.update({'assignments._id' : toggleId}, {$push: {'assignments.$.completed': toggleId}});
+      // Course.update({'assignments._id' : toggleId}, {$pull: {'assignments.$.completed': toggleId}});
 
-      var pipe = [
-      { $match: { students: req.params.userId } },
-      { $project: {_id: false, events: true } },
-      { $unwind: "$events" }
-      ];
-
-      Course.aggregate(pipe, function(err, results) {
-        
-        if (err) return next(err);
-        if (!results) return next(null, false);
-        var events = [];
-        results.forEach(function(result) {
-          console.log(result.events._id);
-          console.log(req.params.eventId);
-          if(result.events._id == req.params.eventId) {
-            if(results.events.completed.length == 0) {
-              // add _id to list
-            } else {
-              for(var i=0; i<results.events.completed.length; i++) {
-                if(req.params.userId == results.events.completed[i]) {
-                  // remove _id from list
-                } else {
-                  // add _id to list
-                }
-              }
-            }
-          }
-        });
-        return res.json(events);
+      Course.find({'assignments._id': toggleId }, function(events) {
+        console.log(JSON.stringify(events));
       });
+
+
+      // var pipe = [
+      // { $match: { students: req.params.userId, assignments: { _id: toggleId } } },
+      // { $project: {_id: false, assignments: true } }
+      // ];
+
+      // Course.aggregate(pipe, function(err, results) {
+      //   if (err) return next(err);
+      //   if (!results) return next(null, false);
+      //   var events = [];
+      //   results.forEach(function(result) {
+      //     console.log(result.assignments._id);
+      //     console.log(req.params.eventId);
+      //     if(result.events._id == req.params.eventId) {
+      //       if(results.events.completed.length == 0) {
+      //         // add _id to list
+      //       } else {
+      //         for(var i=0; i<results.events.completed.length; i++) {
+      //           if(req.params.userId == results.events.completed[i]) {
+      //             // remove _id from list
+      //           } else {
+      //             // add _id to list
+      //           }
+      //         }
+      //       }
+      //     }
+      //   });
+      //   return res.json(events);
+      // });
     });
   }
 }
