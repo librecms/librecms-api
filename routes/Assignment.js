@@ -113,9 +113,7 @@ var AssignmentCtrl = {
             Grade.findOneAndUpdate(gradeQuery, gradeUpdate)
               .exec(function(err, grade) {
                 if (err) return next(err);
-                if(grade) {
-                  return next(null, grade);
-                }
+                if (grade) return res.json(grade);
 
                 req.checkBody('studentId').is(/^[0-9a-fA-F]{24}$/);
                 req.checkBody('studentName').notEmpty();
@@ -133,10 +131,9 @@ var AssignmentCtrl = {
                   submissionId: req.body.submissionId,
                   value: req.body.value
                 });
-                console.log('newGrade = ' + JSON.stringify(newGrade));
                 newGrade.save(function(err) {
                   if (err) return next(err);
-                  return next(null, newGrade);
+                  return res.json(newGrade);
                 });
               });
           });
