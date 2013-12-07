@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 
+require('./Grade');
 require('./User');
 require('./Course');
 require('./Content');
