@@ -149,7 +149,7 @@ var UserCtrl = {
     });
 
     // toggle clicked event status
-    app.post('/users/:userId/events/:eventId', function(req, res) {
+    app.post('/users/:userId/events/:eventId', function(req, res, next) {
       req.assert('userId').is(/^[0-9a-fA-F]{24}$/);
       req.assert('eventId').is(/^[0-9a-fA-F]{24}$/);
 
@@ -159,43 +159,35 @@ var UserCtrl = {
       }
 
       var toggleId = ObjectId(req.params.eventId);
-      console.log(toggleId);
-      // Course.update({'assignments._id' : toggleId}, {$push: {'assignments.$.completed': toggleId}});
-      // Course.update({'assignments._id' : toggleId}, {$pull: {'assignments.$.completed': toggleId}});
+      var user = req.params.userId;
 
-      Course.find({'assignments._id': toggleId }, function(events) {
-        console.log(JSON.stringify(events));
+      Course.findOne({'assignments._id' : toggleId}, function(err, course) {
+        if (err) return next(err);
+        if (!course) return next(null, course);
+
+        course = course.toObject();
+        course.assignments.forEach(function(assignment) {
+          if (assignment._id.toString() !== toggleId.toString()) return; 
+          var position = assignment.completed.indexOf(user);
+          if (position >= 0) {
+            // splice would not work for length of 1... is there a better way?
+            if(assignment.completed.length == 1) {
+              assignment.completed = [];
+            } else {
+              assignment.completed = assignment.completed.splice(position,1);
+            }        
+          } else {
+            assignment.completed.push(user);
+          }
+        });
+
+        Course.update({_id: course._id}, {$set: {assignments: course.assignments}},
+          function(err, numAff) {
+            if(err) return next(err);
+            if (!numAff) return next(null, false);
+            return res.status(200).end();
+          })
       });
-
-
-      // var pipe = [
-      // { $match: { students: req.params.userId, assignments: { _id: toggleId } } },
-      // { $project: {_id: false, assignments: true } }
-      // ];
-
-      // Course.aggregate(pipe, function(err, results) {
-      //   if (err) return next(err);
-      //   if (!results) return next(null, false);
-      //   var events = [];
-      //   results.forEach(function(result) {
-      //     console.log(result.assignments._id);
-      //     console.log(req.params.eventId);
-      //     if(result.events._id == req.params.eventId) {
-      //       if(results.events.completed.length == 0) {
-      //         // add _id to list
-      //       } else {
-      //         for(var i=0; i<results.events.completed.length; i++) {
-      //           if(req.params.userId == results.events.completed[i]) {
-      //             // remove _id from list
-      //           } else {
-      //             // add _id to list
-      //           }
-      //         }
-      //       }
-      //     }
-      //   });
-      //   return res.json(events);
-      // });
     });
   }
 }
