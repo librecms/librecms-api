@@ -158,7 +158,6 @@ var CourseCtrl = {
         if (!results) return next(null, false);
         var posts = [];
         results.forEach(function(result) {
-          console.log(JSON.stringify(result.posts));
           posts.push(result.posts);
         });
         return res.json(posts);

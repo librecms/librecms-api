@@ -123,7 +123,7 @@ var AssignmentCtrl = {
                 req.checkBody('value').isInt();
                 var gradeErrors = req.validationErrors();
                 if (gradeErrors) {
-                  return res.send('There have been validation errors: safd' + util.inspect(errors), 400);
+                  return res.send('There have been validation errors: safd' + util.inspect(gradeErrors), 400);
                 }
                 var newGrade = new Grade({
                   studentId: req.body.studentId,
@@ -133,9 +133,10 @@ var AssignmentCtrl = {
                   submissionId: req.body.submissionId,
                   value: req.body.value
                 });
+                console.log('newGrade = ' + JSON.stringify(newGrade));
                 newGrade.save(function(err) {
                   if (err) return next(err);
-                  return newGrade;
+                  return next(null, newGrade);
                 });
               });
           });
