@@ -284,28 +284,26 @@ var CourseCtrl = {
         { $match: {"assignments._id": assignmentId } },
         { $project: { _id: false, assignments: true } }
       ];
+      if (err) return next(err);
+      if (!result) return next(null, false);
+      if (result.length === 0) return next(null, false);
+      var assignment = result[0].assignments;
+      if (!assignment) return next(null, false);
 
-      Course.aggregate(pipe, function(err, result) {
-        if (err) return next(err);
-        if (!result) return next(null, false);
-        if (result.length === 0) return next(null, false);
-        var assignment = result[0].assignments;
-        if (!assignment) return next(null, false);
-
-        var submissionQuery = {
-          assignmentId: assignment._id
-        };
-        AssignmentSubmission.find(submissionQuery)
-          .exec(function(err, submissions) {
-            if (err) return next(err);
-            assignment.submissions = submissions;
-            return res.json(assignment);
-          });
-      });
+      var submissionQuery = {
+        assignmentId: assignment._id
+      };
+      AssignmentSubmission.find(submissionQuery)
+        .exec(function(err, submissions) {
+          if (err) return next(err);
+          assignment.submissions = submissions;
+          return res.json(assignment);
+        });
     });
 
     //Update assignment by assignmentId and courseId
-    app.put('/courses/:courseId/assignments', function(req, res, next) {
+    app.put('/courses/:courseId/assignments/:assignmentId', function(req, res, next) {
+      console.log("INCOMING PARAMS: " + JSON.stringify(req.body));
       req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
       req.checkBody('due', 'invalid due date').notEmpty().isInt();
       req.checkBody('description', 'invalid description').notEmpty();
@@ -315,18 +313,18 @@ var CourseCtrl = {
       if (errors) {
         return res.send('There have been validation errors: ' + util.inspect(errors), 400);
       }
-
+      
       var updateAssignment = {
-        _id: req.body._id,
         due: req.body.due,
         description: req.body.description,
-        title: req.body.title
+        title: req.body.title,
+        attachments: req.body.attachments
       };
       var query = { 
         _id: req.params.courseId,
-        "assignments._id" : req.params._id
+        "assignments._id" : req.body._id
       };
-      var update = { $pull: { assignments: updateAssignment._id } };
+      var update = { $push: { assignments: updateAssignment } };
       Course.findOneAndUpdate(query, update)
         .exec(function(err, course) {
           if (err) return next(err);
