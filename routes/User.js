@@ -170,12 +170,7 @@ var UserCtrl = {
           if (assignment._id.toString() !== toggleId.toString()) return; 
           var position = assignment.completed.indexOf(user);
           if (position >= 0) {
-            // splice would not work for length of 1... is there a better way?
-            if(assignment.completed.length == 1) {
-              assignment.completed = [];
-            } else {
-              assignment.completed = assignment.completed.splice(position,1);
-            }        
+            assignment.completed.splice(position,1);
           } else {
             assignment.completed.push(user);
           }
