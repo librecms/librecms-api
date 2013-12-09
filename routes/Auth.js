@@ -4,7 +4,7 @@ var AuthCtrl = {
   init: function(app) {
     app.post('/auth/login', passport.authenticate('local'), function(req, res, next) {
       var user = req.user;
-      if (!user) return res.status(401).end();
+      if (!user) return res.status(403).end();
       user.getCourses(function(err, courses) {
         user = user.toObject();
         user.courses = courses;
