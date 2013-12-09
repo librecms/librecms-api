@@ -94,9 +94,9 @@ var UserCtrl = {
       }
 
       //var start = req.query.start;
-      //db.courses.aggregate([{$match:{students:"52868c8f38f0777b4e000007"}},{$unwind:"$posts"},{$group:{_id:"$students",posts:{$addToSet:"$posts"}}}])
+      //db.courses.aggregate([{$match:{$or: [{students:"52868c9738f0777b4e000008"},{instructors:"52868c9738f0777b4e000008"}]}},{$unwind:"$posts"},{$sort:{"posts.date":-1}}])
       var pipe = [
-      { $match: { students: req.params.userId } },
+      { $match: { $or: [ { students: req.params.userId },{ instructors: req.params.userId } ] } },
       { $unwind: "$posts" },
       { $sort: { "posts.date" : -1 } },
       //{ $group: { _id:"$students", posts:{$addToSet:"$posts"} } }
@@ -107,6 +107,7 @@ var UserCtrl = {
         if (!results) return next(null, false);
         var posts = [];
         results.forEach(function(result) {
+          result.posts.name = result.name;
           posts.push(result.posts);
         });
         return res.json(posts);
