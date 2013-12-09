@@ -120,24 +120,8 @@ var CourseCtrl = {
     // Get posts by course ID
     // @TODO pagination
     app.get('/courses/:courseId/posts', function(req, res, next) {
-      // req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
       
-      // var errors = req.validationErrors();
-      // if (errors) {
-      //   return res.send('There have been validation errors: ' + util.inspect(errors), 400);
-      // }
-
-      // var filter = { posts: true };
-      // var query = { _id: req.params.courseId };
-      // Course.findOne(query, filter)
-      //   .exec(function(err, course) {
-      //     if (err) return next(err);
-      //     if (!course) return next(null, false);
-      //     return res.json(course.posts || []);
-      //   });
-
       req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
-      //req.assert('start', 'Invalid start').isInt();
       
       var errors = req.validationErrors();
       if (errors) {
@@ -158,6 +142,7 @@ var CourseCtrl = {
         if (!results) return next(null, false);
         var posts = [];
         results.forEach(function(result) {
+          result.posts.name = result.name;
           posts.push(result.posts);
         });
         return res.json(posts);
