@@ -35,6 +35,11 @@ var Assignment = new mongoose.Schema({
     type: [String],
     required: true,
     default: []
+  },
+  points: {
+    type: Number,
+    required: true,
+    unique: false
   }
 });
 

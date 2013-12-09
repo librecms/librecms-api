@@ -25,7 +25,7 @@ var CourseCtrl = {
 
     // Create new course
     app.post('/courses', function(req, res, next) {
-      req.checkBody('name', 'Invalid name').notEmpty();
+      req.checkBody('name', 'Name must not be empty').notEmpty();
 
       var errors = req.validationErrors();
       if (errors) {
@@ -239,9 +239,10 @@ var CourseCtrl = {
     // Create new assignment by courseId
     app.post('/courses/:courseId/assignments', function(req, res, next) {
       req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
-      req.checkBody('due', 'invalid due date').notEmpty().isInt();
-      req.checkBody('description', 'invalid description').notEmpty();
-      req.checkBody('title', 'invalid title').notEmpty();
+      req.checkBody('due', 'Invalid Due Date').notEmpty().isInt();
+      req.checkBody('description', 'Description Must Not Be Empty').notEmpty();
+      req.checkBody('title', 'Title Must Not Be Empty').notEmpty();
+      req.checkBody('points', 'Points must be an Integer').isInt();
 
       var errors = req.validationErrors();
       if (errors) {
@@ -253,7 +254,8 @@ var CourseCtrl = {
         description: req.body.description,
         posted: (new Date()).getTime(),
         attachments: req.body.attachments,
-        title: req.body.title
+        title: req.body.title,
+        points: req.body.points
       });
       var query = { _id: req.params.courseId };
       var update = { $push: { assignments: newAssignment } };

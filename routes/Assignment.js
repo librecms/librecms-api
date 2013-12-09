@@ -73,12 +73,14 @@ var AssignmentCtrl = {
 
     app.get('/courses/:courseId/assignments/:assignmentId/grades',
       auth.ensureAuthenticated,
-      auth.ensureInstructor,
       function(req, res, next) {
         var query = {
           courseId: req.params.courseId,
           assignmentId: req.params.assignmentId
         };
+        if (req.user && req.user.role === 'student') {
+          query.studentId = req.user._id;
+        }
         Grade.find(query)
           .exec(function(err, grades) {
             if (err) return next(err);
