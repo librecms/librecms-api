@@ -310,7 +310,6 @@ var CourseCtrl = {
           if (err) return next(err);
           if (!doc) return next(null, course);
           //Convert BSON list of course assignments to JSON
-          doc = doc.toObject();
           //Loop through course assignments 
           doc.assignments = doc.assignments.map(function(assignment) {
             if(assignment._id.toString() ===  req.body._id) {
