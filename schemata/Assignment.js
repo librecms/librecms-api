@@ -7,7 +7,9 @@ var Assignment = new mongoose.Schema({
   },
     type: String,
   description: {
-    default: ""
+    type: String,
+    unique: false,
+    index: false
   },
   posted: {
     type: Number,

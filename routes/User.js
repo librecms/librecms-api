@@ -178,7 +178,7 @@ var UserCtrl = {
           function(err, numAff) {
             if(err) return next(err);
             if (!numAff) return next(null, false);
-            return res.status(200).end();
+            return res.json(course.assignments);
           });
       });
     });

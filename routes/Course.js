@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 var ObjectId = mongoose.Types.ObjectId;
 var util = require('util');
+var auth = require('../auth');
 
 var Assessment = mongoose.model('Assessment');
 var Assignment = mongoose.model('Assignment');
@@ -9,6 +10,7 @@ var Course = mongoose.model('Course');
 var Event = mongoose.model('Event');
 var Post = mongoose.model('Post');
 var User = mongoose.model('User');
+var Grade = mongoose.model('Grade');
 
 var CourseCtrl = {
   init: function(app) {
@@ -405,6 +407,44 @@ var CourseCtrl = {
           if (err) return next(err);
           if (!course) return next(null, false);
           return res.json(course.grades || []);
+        });
+    });
+
+    app.get('/courses/:courseId/grades',
+      auth.ensureAuthenticated,
+      function(req, res, next) {
+      req.assert('courseId').is(/^[0-9a-fA-F]{24}$/);
+
+      var errors = req.validationErrors();
+      if (errors) {
+        return res.send('There have been validation errors: ' + util.inspect(errors), 400);
+      }
+
+      Course.findOne({_id: req.params.courseId})
+        .then(function(err, course) {
+          if (err) return next(err);
+          if (!course) return res.status(404).end();
+          course = course.toObject();
+          var gradeQuery = {
+            studentId: req.user._id,
+            courseId: req.params.courseId
+          };
+          Grade.find(gradeQuery)
+            .exec(function(err, grades) {
+              if (err) return next(err);
+              var gradeByAssignmentId = {};
+              grades.forEach(function(grade) {
+                if (gradeByAssignmentId.hasOwnProperty(grade.assignmentId)) {
+                  var existingGrade = gradeByAssignmentId[grade.assignmentId];
+                  if (grade.posted > existingGrade.posted) {
+                    gradeByAssignmentId[grade.assignmentId] = grade;
+                  }
+                } else {
+                  gradeByAssignmentId[grade.assignmentId] = grade;
+                }
+
+              });
+            });
         });
     });
 
