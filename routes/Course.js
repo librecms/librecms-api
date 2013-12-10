@@ -313,22 +313,29 @@ var CourseCtrl = {
         return res.send('There have been validation errors: ' + util.inspect(errors), 400);
       }
       
-      var updateAssignment = {
-        due: req.body.due,
-        description: req.body.description,
-        title: req.body.title,
-        attachments: req.body.attachments
-      };
       var query = { 
         _id: req.params.courseId,
         "assignments._id" : req.body._id
       };
-      var update = { $push: { assignments: updateAssignment } };
-      Course.findOneAndUpdate(query, update)
-        .exec(function(err, course) {
+      Course.findOne(query, function (err, doc) { 
           if (err) return next(err);
-          if (!course) return next(null, false);
-          return res.json(updateAssignment);
+          if (!doc) return next(null, course);
+          //Convert BSON list of course assignments to JSON
+          //Loop through course assignments 
+          doc.assignments = doc.assignments.map(function(assignment) {
+            if(assignment._id.toString() ===  req.body._id) {
+              assignment.title = req.body.title;
+              assignment.description = req.body.description;
+              assignment.due = req.body.due;
+              assignment.posted = req.body.posted;
+              assignment.attachments = req.body.attachments;
+              return assignment;
+            }
+          });
+          doc.save(function(err) { 
+            if (err) return next(err);
+            return res.json(doc.assignments);
+          });
         });
     });
 
