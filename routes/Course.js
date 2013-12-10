@@ -244,8 +244,17 @@ var CourseCtrl = {
         title: req.body.title,
         points: req.body.points
       });
+      var newPostText = newAssignment.title + " has been posted";
+      var newPost = new Post({
+        date: newAssignment.posted,
+        text: newPostText,
+        generated: true
+      });
       var query = { _id: req.params.courseId };
-      var update = { $push: { assignments: newAssignment } };
+      var update = { $push: { 
+        assignments: newAssignment,
+        posts: newPost
+      } };
       Course.findOneAndUpdate(query, update)
         .exec(function(err, course) {
           if (err) return next(err);
