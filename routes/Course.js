@@ -422,29 +422,75 @@ var CourseCtrl = {
       }
 
       Course.findOne({_id: req.params.courseId})
-        .then(function(err, course) {
+        .exec(function(err, course) {
           if (err) return next(err);
           if (!course) return res.status(404).end();
-          course = course.toObject();
           var gradeQuery = {
-            studentId: req.user._id,
             courseId: req.params.courseId
           };
           Grade.find(gradeQuery)
             .exec(function(err, grades) {
               if (err) return next(err);
-              var gradeByAssignmentId = {};
+              var gradesByStudentId = {};
+              var gradesByAssignmentId = {};
               grades.forEach(function(grade) {
-                if (gradeByAssignmentId.hasOwnProperty(grade.assignmentId)) {
-                  var existingGrade = gradeByAssignmentId[grade.assignmentId];
-                  if (grade.posted > existingGrade.posted) {
-                    gradeByAssignmentId[grade.assignmentId] = grade;
-                  }
-                } else {
-                  gradeByAssignmentId[grade.assignmentId] = grade;
+                if (!Array.isArray(gradesByStudentId[grade.studentId])) {
+                  gradesByStudentId[grade.studentId] = [];
                 }
+                gradesByStudentId[grade.studentId].push(grade);
 
+                if (!Array.isArray(gradesByAssignmentId[grade.assignmentId])) {
+                  gradesByAssignmentId[grade.assignmentId] = [];
+                }
+                gradesByAssignmentId[grade.assignmentId].push(grade);
               });
+
+              var assignmentsWithGradeInfo = [];
+              course = course.toObject();
+              course.assignments.forEach(function(assignment) {
+                if (!gradesByAssignmentId.hasOwnProperty(assignment._id)) {
+                  gradesByAssignmentId[assignment._id] = [];
+                }
+                var totalPoints = 0;
+                var maxPoints = 0;
+                var thisStudentsGrade = {};
+                gradesByAssignmentId[assignment._id].forEach(function(grade) {
+                  totalPoints += Number(grade.value);
+                  maxPoints += Number(assignment.points);
+                  if (grade.studentId === req.user._id.toString()) {
+                    assignment.grade = grade;
+                  }
+                });
+                if (!assignment.grade) {
+                  assignment.grade = {
+                    value: 0
+                  };
+                }
+                assignment.average = maxPoints ? 
+                  (totalPoints / maxPoints) : 0;
+                assignment.average = Math.floor(assignment.points * assignment.average);
+
+                assignmentsWithGradeInfo.push(assignment);
+              });
+
+              var gradeableTotal = 0;
+              var gradeableMax = 0;
+              var now = (new Date()).getTime();
+              assignmentsWithGradeInfo.forEach(function(assignment) {
+                if ((assignment.due < now) || (assignment.grade.value > 0)) {
+                  gradeableTotal += Number(assignment.grade.value);
+                  gradeableMax += Number(assignment.points);
+                }
+              });
+              var assignmentsAverage = gradeableMax ?
+                Math.floor(100*gradeableTotal/gradeableMax) : 0;
+
+              var gradeInfo = {
+                assignmentsAverage: assignmentsAverage,
+                assignments: assignmentsWithGradeInfo
+              };
+
+              return res.json(gradeInfo);
             });
         });
     });

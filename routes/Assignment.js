@@ -110,8 +110,12 @@ var AssignmentCtrl = {
           .exec(function(err, course) {
             if (err) return next(err);
             if (!course) return res.status(401).end();
-            var gradeQuery = { _id: req.body.gradeId };
-            var gradeUpdate = { $set: { value: req.body.value } };
+            var gradeQuery = { 
+              studentId: req.body.studentId,
+              courseId: req.params.courseId,
+              assignmentId: req.params.assignmentId
+            };
+            var gradeUpdate = { value: req.body.value };
             Grade.findOneAndUpdate(gradeQuery, gradeUpdate)
               .exec(function(err, grade) {
                 if (err) return next(err);
