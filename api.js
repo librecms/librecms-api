@@ -3,6 +3,7 @@ var expressValidator = require('express-validator');
 var mongoose = require('mongoose');
 var connect = require('connect');
 var passport = require('passport');
+var SessionStore = require('session-mongoose')(connect);
 
 var db = mongoose.connection;
 db.on('error', function(error) {
@@ -30,6 +31,11 @@ require('./schemata');
 // Passport authentication configuration
 require('./auth');
 
+var store = new SessionStore({
+  url: process.env.LIBRECMS_MONGO_URI + '/session',
+  sweeper: false
+});
+
 var app = express();
 app.configure(function () {
   app.use(expressValidator());
@@ -37,7 +43,12 @@ app.configure(function () {
   app.use(express.cookieParser());
   app.use(express.bodyParser());
   app.use(express.methodOverride());
-  app.use(express.session({ secret: 'keyboard cat' }));
+  // Session cookie expires in 1 week
+  app.use(express.session({ 
+    store: store,
+    secret: 'ksajdfnaskdfjdn',
+    cookie: { maxAge: 604800000 }
+  }));
   // Initialize Passport!  Also use passport.session() middleware, to support
   // persistent login sessions (recommended).
   app.use(passport.initialize());
