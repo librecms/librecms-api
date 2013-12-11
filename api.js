@@ -4,12 +4,25 @@ var mongoose = require('mongoose');
 var connect = require('connect');
 var passport = require('passport');
 
-mongoose.connect(process.env.LIBRECMS_MONGO_URI);
 var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function callback() {
-    console.log('Successfully connected to database');
+db.on('error', function(error) {
+  console.error('Error in MongoDB connection: ' + error);
+  mongoose.disconnect();
 });
+db.on('connected', function() {
+  console.log('Successfully connected to MongoDB');
+});
+db.on('connecting', function() {
+  console.log('Connecting to MongoDB...');
+});
+db.on('reconnected', function() {
+  console.log('Reconnected to MongoDB');
+});
+db.on('disconnected', function() {
+  console.log('Disconnected from MongoDB');
+  mongoose.connect(process.env.LIBRECMS_MONGO_URI, {server: {auto_reconnect: true} });
+});
+mongoose.connect(process.env.LIBRECMS_MONGO_URI, {server: {auto_reconnect: true} });
 
 // Mongoose Schemata
 require('./schemata');
