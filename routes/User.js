@@ -4,6 +4,7 @@ ObjectId = mongoose.Types.ObjectId;
 
 var User = mongoose.model('User');
 var Course = mongoose.model('Course');
+var Grade = mongoose.model('Grade');
 
 var UserCtrl = {
   init: function(app) {
@@ -183,7 +184,51 @@ var UserCtrl = {
           });
       });
     });
+
+    app.get('/users/:userId/grades', 
+      function(req, res, next) {
+        
+        // @TODO not done with calculating courses' lettergrades
+        function courseCallback(err, courses) {
+          if (err) return next(err);
+          if (!courses) return res.status(200).end();
+          var maxPointsByCourseId = {};
+          var usersPointByCourseId = {};
+          courses.forEach(function(course) {
+            course.assignments.forEach(function(assignment) {
+              if (!gradesByAssignmentId.hasOwnProperty(assignment._id) &&
+                  assignment.due > now) {
+                return;
+              } else {
+              }
+            });
+          });
+          return res.status(200).end();
+        }
+
+        function gradeCallback(err, grades) {
+          var gradesByCourseId = {};
+          grade.forEach(function(grade) {
+            if (!gradesByCourseId.hasOwnProperty(grade.courseId)) {
+              gradesByCourseId[grade.courseId] = [];
+            }
+            gradesByCourseId[grade.courseId].push(grade);
+
+            if (!gradesByAssignmentId.hasOwnProperty(grade.assignmentId)) {
+              gradesByAssignmentId[grade.assignmentId] = [];
+            }
+            gradesByAssignmentId[grade.assignmentId].push(grade);
+          });
+          var courseIds = Object.keys(gradesByCourseId);
+          var courseQuery = { _id: { $in: courseIds } };
+          var courseFilter = { assignments: true };
+          Course.find(courseQuery, courseFilter).exec(courseCallback);
+        }
+
+        var gradeQuery = { studentId: req.user._id };
+        Grade.find(gradeQuery).exec(gradeCallback);
+    });
   }
-}
+};
 
 module.exports = UserCtrl;
