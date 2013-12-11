@@ -140,7 +140,6 @@ var UserCtrl = {
         if (err) return next(err);
         if (!results) return next(null, false);
         var assignments = [];
-        console.log(JSON.stringify(results));
         results.forEach(function(result) {
           assignments.push(result.assignments);
         });
@@ -187,28 +186,52 @@ var UserCtrl = {
 
     app.get('/users/:userId/grades', 
       function(req, res, next) {
+        var gradesByAssignmentId = {};
         
         // @TODO not done with calculating courses' lettergrades
         function courseCallback(err, courses) {
           if (err) return next(err);
           if (!courses) return res.status(200).end();
           var maxPointsByCourseId = {};
-          var usersPointByCourseId = {};
+          var usersPointsByCourseId = {};
+          var gradesInfo = [];
+          var now = (new Date()).getTime();
           courses.forEach(function(course) {
             course.assignments.forEach(function(assignment) {
               if (!gradesByAssignmentId.hasOwnProperty(assignment._id) &&
                   assignment.due > now) {
                 return;
               } else {
+                if (!maxPointsByCourseId.hasOwnProperty(course._id)) {
+                  maxPointsByCourseId[course._id] = 0;
+                }
+                if (!usersPointsByCourseId.hasOwnProperty(course._id)) {
+                  usersPointsByCourseId[course._id] = 0;
+                }
+                maxPointsByCourseId[course._id] += assignment.points;
+                if (gradesByAssignmentId.hasOwnProperty(assignment._id)) {
+                  usersPointsByCourseId[course._id] += 
+                    gradesByAssignmentId[assignment._id].map(function(grade) {
+                      return Number(grade.value);
+                    }).reduce(function(value1, value2) {
+                      return value1 + value2;
+                    });
+                }
               }
             });
+            var gradeInfo = {
+              courseName: course.name,
+              courseId: course._id,
+              average: Math.floor(100* (usersPointsByCourseId[course._id] / maxPointsByCourseId[course._id]) )
+            };
+            gradesInfo.push(gradeInfo);
           });
-          return res.status(200).end();
+          return res.json(gradesInfo);
         }
 
         function gradeCallback(err, grades) {
           var gradesByCourseId = {};
-          grade.forEach(function(grade) {
+          grades.forEach(function(grade) {
             if (!gradesByCourseId.hasOwnProperty(grade.courseId)) {
               gradesByCourseId[grade.courseId] = [];
             }
@@ -220,12 +243,12 @@ var UserCtrl = {
             gradesByAssignmentId[grade.assignmentId].push(grade);
           });
           var courseIds = Object.keys(gradesByCourseId);
-          var courseQuery = { _id: { $in: courseIds } };
-          var courseFilter = { assignments: true };
+          var courseQuery = { students: req.params.userId };
+          var courseFilter = { assignments: true, name: true };
           Course.find(courseQuery, courseFilter).exec(courseCallback);
         }
 
-        var gradeQuery = { studentId: req.user._id };
+        var gradeQuery = { studentId: req.params.userId };
         Grade.find(gradeQuery).exec(gradeCallback);
     });
   }
